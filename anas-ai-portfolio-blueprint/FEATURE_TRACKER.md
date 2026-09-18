@@ -35,7 +35,7 @@ This file is the single progress source of truth.
 | F022 | RAG ingestion pipeline | AI | **DONE** | Normalize, chunk, embed, metadata, index, update/delete sync. |
 | F023 | BGE-M3 embedding adapter | AI | **DONE** | Default multilingual embedding integration behind provider interface. |
 | F024 | Hybrid retrieval | AI | **DONE** | Dense + sparse retrieval, metadata filtering and fusion. |
-| F025 | Query Router | AI | **PENDING** | Route intent/scope to relevant retrieval policy. |
+| F025 | Query Router | AI | **DONE** | Route intent/scope to relevant retrieval policy. |
 | F026 | Query Rewriting | AI | **PENDING** | Configurable multilingual multi-query rewriting. |
 | F027 | BGE reranker adapter | AI | **PENDING** | Default multilingual reranking adapter. |
 | F028 | Context builder/dedup/budget | AI | **PENDING** | Deterministic context packing and token budget. |
@@ -669,13 +669,31 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 36 routes compiled cleanly).
 - Next: F025 — Query Router
 
+### F025: Query Router (DONE)
+- Implemented production Query Router adhering strictly to `docs/ai/06_QUERY_ROUTER.md` and `docs/ai/01_MODULAR_RAG_OVERVIEW.md`:
+  - `src/ai/contracts/router.ts` (`RouteId` [profile, project, skills, experience, certification, technical_detail, job_fit, cv, broad_portfolio], `RetrievalPolicy`, `QueryRouteDefinition`, `RouterOutput`, `QueryRouterPort`, and strict `RouterOutputSchema`)
+  - `src/ai/contracts/index.ts` (Re-exported router contracts)
+  - `src/ai/router/baseline-routes.ts` (`BASELINE_RETRIEVAL_POLICIES` and `BASELINE_QUERY_ROUTES` with bilingual Arabic and English intent indicators, default fallback broad policy, and scope mappings)
+  - `src/ai/router/rule-based-classifier.ts` (Fast deterministic regex & keyword classifier with Arabic diacritic normalization, tatweel removal, and entity hint extraction)
+  - `src/ai/router/query-router.ts` (`QueryRouter` implementing `QueryRouterPort`, validating output with `RouterOutputSchema` and guaranteeing safe fallback to `broad_portfolio` policy on uncertainty)
+  - `src/ai/router/index.ts` (Unified router module export)
+  - `app/api/admin/ai/router/test/route.ts` (Admin-authenticated testing endpoint for route validation)
+  - Tests:
+    - `tests/unit/rule-based-classifier.test.ts` (20 tests)
+    - `tests/unit/query-router.test.ts` (5 tests)
+    - `tests/integration/admin-router-test-route.test.ts` (4 tests)
+- Tests:
+  - Total: 411 unit/integration tests passing in Vitest across 62 test suites (62/62 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 37 routes compiled cleanly).
+- Next: F026 — Query Rewriting
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 24
+- DONE: 25
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 26
+- PENDING: 25
 
 The agent must update these totals when statuses change.
 
