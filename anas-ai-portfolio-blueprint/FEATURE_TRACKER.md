@@ -14,8 +14,8 @@ This file is the single progress source of truth.
 | F001 | Foundation & repository quality | Core | **DONE** | Initialize Next.js, strict TypeScript, lint/format/test/build scripts, env validation and CI baseline. |
 | F002 | Database & migrations | Data | **DONE** | PostgreSQL/Drizzle schema foundation, migration workflow and constraints. |
 | F003 | Authentication | Auth | **DONE** | Sign-up, sign-in, secure sessions, verification-ready flows. |
-| F004 | RBAC & admin protection | Auth | **IN_PROGRESS** | USER/ADMIN roles, deny-by-default server authorization. |
-| F005 | Guest-first public access | Core | **PENDING** | Every public portfolio feature works without authentication. |
+| F004 | RBAC & admin protection | Auth | **DONE** | USER/ADMIN roles, deny-by-default server authorization. |
+| F005 | Guest-first public access | Core | **DONE** | Every public portfolio feature works without authentication. |
 | F006 | Dynamic localization registry | Frontend/Data | **PENDING** | Database-backed Arabic/English UI text with no hardcoded portfolio labels. |
 | F007 | Automatic RTL/LTR system | Frontend | **PENDING** | Correct direction across all layouts, content, overlays, forms and chat. |
 | F008 | Light/dark theme | Frontend | **PENDING** | System-aware theme plus persistent user/guest override. |
@@ -153,12 +153,35 @@ This file is the single progress source of truth.
 - Known limitations: None. Fully meeting Definition of Done.
 - Next: F005 — Guest-first public access
 
+#### F005 — Guest-first public access
+- Status: DONE
+- Commit/PR: `afbba11`
+- Main paths:
+  - `src/modules/auth/domain/access-policy.ts` (Public capabilities catalog, `isPublicFeature`, `canAccessFeature`, `assertPublicFeature`)
+  - `src/modules/auth/infrastructure/request-context.ts` (`resolveRequestContext`, guest ephemeral resolution with zero shadow accounts or fingerprinting)
+  - `src/modules/auth/presentation/guest-reassurance-badge.tsx` (Bilingual restrained guest exploration badge)
+  - `app/[locale]/(public)/page.tsx` (Public landing with instant guest capabilities grid and reassurance banner)
+  - `tests/unit/access-policy.test.ts`, `tests/unit/request-context.test.ts`, `tests/integration/guest-access.test.ts`
+- Tests:
+  - `tests/unit/access-policy.test.ts` (5 tests verifying all 12 public capabilities from `01_GUEST_ACCESS.md`, guest access, and non-gating assertions)
+  - `tests/unit/request-context.test.ts` (4 tests verifying clean `GuestContext` resolution without DB writes or shadow accounts, and authenticated user/admin mapping)
+  - `tests/integration/guest-access.test.ts` (4 tests simulating private browser guest request, asserting public route and API accessibility, and verifying admin surfaces remain protected)
+  - Total: 49 unit/integration tests passing in Vitest across 11 test suites
+- Migrations: None required (guest context is strictly unauthenticated, ephemeral, and stores zero records)
+- Config: Strictly ephemeral guest model per `NON_NEGOTIABLES.md` Rule 32; zero shadow accounts, zero persistent fingerprinting
+- Manual QA: Tested `/ar` and `/en` public landing rendering with guest reassurance banner, validated responsive layout and RTL/LTR direction
+- Arabic/RTL QA: Verified Arabic strings, RTL flex layouts, and appropriate spacing
+- English/LTR QA: Verified English strings, LTR layout, and proper typography
+- Security notes: Public routes remain unrestricted, while admin endpoints strictly enforce 401/403 authorization; zero guest credentials or tokens stored in DB
+- Known limitations: None. Fully meeting Definition of Done.
+- Next: F006 — Dynamic localization registry
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 4
+- DONE: 5
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 46
+- PENDING: 45
 
 The agent must update these totals when statuses change.

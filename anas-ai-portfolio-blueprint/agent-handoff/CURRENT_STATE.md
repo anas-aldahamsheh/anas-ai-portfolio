@@ -1,32 +1,32 @@
 # Current State
 
-Last updated: F004 completed.
+Last updated: F005 completed.
 
 ## Current feature
-F004 — RBAC & admin protection (DONE).
-Next: F005 — Guest-first public access (PENDING).
+F005 — Guest-first public access (DONE).
+Next: F006 — Dynamic localization registry (PENDING).
 
 ## Repository state
-- Branch: `feat/f004-rbac-admin-protection`
-- Last commit: `4d10a34`
+- Branch: `feat/f005-guest-first-public-access`
+- Last commit: `afbba11`
 - Completed features:
   - F001: Foundation & repository quality (DONE)
   - F002: Database & migrations (DONE)
   - F003: Authentication (DONE)
   - F004: RBAC & admin protection (DONE)
-- Better Auth setup complete with Drizzle PostgreSQL adapter (`users`, `sessions`, `accounts`, `verifications`).
-- Role-based access control implemented (`GUEST`, `USER`, `ADMIN`) with server-enforced deny-by-default checks (`requireUser`, `requireAdmin`).
-- Admin route protection active in `app/[locale]/admin/layout.tsx` (redirects unauthenticated to sign-in, denies non-admin users) and admin API route `app/api/admin/guard-check/route.ts`.
-- Admin bootstrap CLI tool in `scripts/bootstrap-admin/index.ts` with immutable audit logging.
-- 36 unit and integration tests passing in Vitest across 8 test suites.
+  - F005: Guest-first public access (DONE)
+- Guest-first access policy implemented in `src/modules/auth/domain/access-policy.ts` covering 12 public capabilities per `01_GUEST_ACCESS.md` and `MASTER_BUILD_SPEC.md` Section 3.
+- Request context resolver in `src/modules/auth/infrastructure/request-context.ts` guarantees zero database shadow accounts or fingerprinting cookies for guests.
+- Bilingual guest reassurance banner in `src/modules/auth/presentation/guest-reassurance-badge.tsx` and public landing page with capabilities grid in `app/[locale]/(public)/page.tsx`.
+- 49 unit and integration tests passing in Vitest across 11 test suites.
 - Full verification passed (Prettier, ESLint, TypeScript strict, Vitest, Next.js build).
 
 ## Last successful commands
-- `pnpm format:check` (passed)
+- `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 36/36 tests passed)
-- `pnpm build` (passed, all routes compiled cleanly)
+- `pnpm test` (passed, 49/49 tests passed)
+- `pnpm build` (passed, all static SSG and dynamic routes compiled cleanly)
 
 ## Database migrations
 - `drizzle/0000_great_wendell_vaughn.sql` (committed)
@@ -35,13 +35,15 @@ Next: F005 — Guest-first public access (PENDING).
 None.
 
 ## Next action
-Begin **F005 — Guest-first public access**:
-1. Review `docs/features/01_GUEST_ACCESS.md` and `MASTER_BUILD_SPEC.md` Section 3.
-2. Ensure every public feature (projects, deep dives, CV viewer/download, AI assistant, Job Fit Analyzer) functions without login, maintaining GUEST request context and zero forced auth walls.
-3. Prepare implementation plan for F005.
+Begin **F006 — Dynamic localization registry**:
+1. Review `docs/features/18_NO_STATIC_CONTENT_POLICY.md` and database schema for `locales`, `ui_text_keys`, and `ui_text_translations`.
+2. Implement server-side localization service in `src/modules/localization/infrastructure/` with database-backed dictionary fetching, in-memory caching, and fallback logic.
+3. Build bilingual UI translation hook / server translation helper `t(key, locale)` ensuring zero hardcoded user-facing portfolio strings.
+4. Add comprehensive unit and integration tests for dictionary loading, fallback resolution, and missing key handling.
 
 ## Important reminders
 - Update this file before ending an agent session.
 - Update `FEATURE_TRACKER.md`.
 - Never claim DONE without tests meeting Definition of Done.
+
 
