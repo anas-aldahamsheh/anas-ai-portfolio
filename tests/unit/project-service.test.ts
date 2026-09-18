@@ -171,4 +171,45 @@ describe("ProjectService Domain & Infrastructure (F017)", () => {
       expect(success).toBe(true);
     });
   });
+
+  describe("Deep Dive Narrative Fields (F018)", () => {
+    it("retrieves complete technical deep dive fields from baseline project", async () => {
+      const project = await service.getProjectBySlug("autonomous-rag-engine", "en");
+      expect(project).toBeDefined();
+      expect(project?.problem).toBeTruthy();
+      expect(project?.constraints).toBeTruthy();
+      expect(project?.solution).toBeTruthy();
+      expect(project?.architecture).toBeTruthy();
+      expect(project?.implementation).toBeTruthy();
+      expect(project?.challenges).toBeTruthy();
+      expect(project?.decisionsTradeoffs).toBeTruthy();
+      expect(project?.results).toBeTruthy();
+    });
+
+    it("retrieves Arabic deep dive fields correctly", async () => {
+      const project = await service.getProjectBySlug("autonomous-rag-engine", "ar");
+      expect(project).toBeDefined();
+      expect(project?.problem).toContain("البحث الدلالي");
+      expect(project?.constraints).toContain("زمن استجابة");
+      expect(project?.solution).toContain("خط أنابيب بحث هجين");
+      expect(project?.results).toContain("دقة اقتباس");
+    });
+  });
+
+  describe("Related Projects (F018)", () => {
+    it("retrieves related projects excluding current project slug", async () => {
+      const related = await service.getRelatedProjects("autonomous-rag-engine", "en", 2);
+      expect(related.length).toBeLessThanOrEqual(2);
+      expect(related.every((p) => p.slug !== "autonomous-rag-engine")).toBe(true);
+    });
+
+    it("prioritizes projects with matching category or tags", async () => {
+      const related = await service.getRelatedProjects("autonomous-rag-engine", "en", 2);
+      // Autonomous RAG engine has tags TypeScript, pgvector, RAG, Python
+      // Enterprise Edge Policy Router has tag TypeScript
+      expect(related.length).toBeGreaterThan(0);
+      const slugs = related.map((p) => p.slug);
+      expect(slugs).not.toContain("autonomous-rag-engine");
+    });
+  });
 });

@@ -28,7 +28,7 @@ This file is the single progress source of truth.
 | F015 | GitHub profile popover | Feature | **DONE** | Dynamic GitHub account card with copy/open actions. |
 | F016 | LinkedIn profile popover | Feature | **DONE** | Dynamic LinkedIn account card with copy/open actions. |
 | F017 | Project catalog | Feature | **DONE** | Dynamic projects, filters/tags/order/publishing. |
-| F018 | Project Deep Dive | Feature | **PENDING** | Block-based rich project detail pages. |
+| F018 | Project Deep Dive | Feature | **DONE** | Block-based rich project detail pages. |
 | F019 | AI provider/model registry | AI/Admin | **PENDING** | Admin manages generation/embedding/reranker providers/models/endpoints. |
 | F020 | Secrets management | Security/Admin | **PENDING** | Safe encrypted API credential management and redaction. |
 | F021 | Prompt registry & versioning | AI/Admin | **PENDING** | Admin-editable prompt versions with rollback. |
@@ -487,12 +487,34 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
 - Next: F018 — Project Deep Dive
 
+### F018: Project Deep Dive
+- Feature: F018 — Project Deep Dive
+- Status: **DONE**
+- Branch: `feat/f018-project-deep-dive`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Registered 19 dynamic keys for narrative headers, tech stack, scoped AI retrieval badge, suggested questions, and 404 text in Arabic & English)
+  - `src/modules/projects/domain/types.ts` (Enriched `Project` model with `problem`, `constraints`, `solution`, `architecture`, `implementation`, `challenges`, `decisionsTradeoffs`, and `results`)
+  - `src/modules/projects/domain/baseline.ts` (Enriched domain baseline projects with comprehensive verified technical engineering content in Arabic and English)
+  - `src/modules/projects/infrastructure/project-service.ts` (Updated `listProjects` to query all narrative deep dive columns and implemented `getRelatedProjects(slug, locale, limit)`)
+  - `src/modules/projects/presentation/project-deep-dive.tsx` (Content-driven presentation component strictly omitting empty sections to prevent broken headings, scoped AI query affordance linking to `/chat?project=${slug}&projectId=${id}`, related projects grid, and `EditableRegion` wrappers)
+  - `src/modules/projects/presentation/index.ts` (Exported `ProjectDeepDive` and `ProjectDeepDiveProps`)
+  - `app/[locale]/(public)/projects/[slug]/page.tsx` (Dynamic server-rendered route with localized metadata and 404 handling via `notFound()`)
+  - `tests/unit/project-service.test.ts` (Added 4 unit tests covering deep dive fields and related project filtering)
+  - `tests/integration/project-deep-dive.test.tsx` (5 integration tests verifying narrative blocks rendering, empty section omission, scoped Ask AI affordance, Arabic RTL localization, and admin edit mode)
+- Tests:
+  - `tests/unit/project-service.test.ts` (18 tests passing)
+  - `tests/integration/project-deep-dive.test.tsx` (5 tests passing)
+  - Total: 208 unit/integration tests passing in Vitest across 36 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (`/[locale]/projects/[slug]` route generated).
+- Next: F019 — AI provider/model registry
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 17
+- DONE: 18
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 33
+- PENDING: 32
 
 The agent must update these totals when statuses change.
