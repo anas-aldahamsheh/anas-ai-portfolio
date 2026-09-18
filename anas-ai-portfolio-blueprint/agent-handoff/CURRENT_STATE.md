@@ -1,13 +1,13 @@
 # Current State
 
-Last updated: F010 completed.
+Last updated: F011 completed.
 
 ## Current feature
-F010 — Motion system (DONE). Next is F011 — Dynamic navigation/footer.
+F011 — Dynamic navigation/footer (DONE). Next is F012 — Dynamic section builder.
 
 ## Repository state
-- Branch: `feat/f010-motion-system`
-- Last commit: `71d2966`
+- Branch: `feat/f011-dynamic-navigation-footer`
+- Last commit: `37c7329`
 - Completed features:
   - F001: Foundation & repository quality (DONE)
   - F002: Database & migrations (DONE)
@@ -19,21 +19,22 @@ F010 — Motion system (DONE). Next is F011 — Dynamic navigation/footer.
   - F008: Light/dark theme (DONE)
   - F009: Design system & custom Select (DONE)
   - F010: Motion system (DONE)
-- Motion System architecture implemented:
-  - Strict adherence to `docs/frontend/05_MOTION_SYSTEM.md`: short, subtle, interruptible, state-driven, performant, and reduced-motion compliant (Rule 20).
-  - Tokens and variants defined in `src/modules/motion/domain/motion-tokens.ts`: durations <= 0.4s, sleek cubic bezier easings, full reduced-motion overrides (zero translation, zero delay, zero stagger, linear instant transition).
-  - React 19 `useSyncExternalStore` hook in `src/modules/motion/presentation/use-reduced-motion-preference.ts` listening to `(prefers-reduced-motion: reduce)`.
-  - Configurable `MotionProvider` context in `src/modules/motion/presentation/motion-provider.tsx` with `isReducedMotion`, `intensity` (`none` | `reduced` | `normal`), and `shouldAnimate`.
-  - Motion primitives created in `src/components/motion/`: `FadeIn`, `SlideIn`, `StaggerContainer`, `StaggerItem`, and `PresenceTransition` (using `motion/react` and `AnimatePresence`).
-  - Integrated motion primitives seamlessly into public homepage (`app/[locale]/(public)/page.tsx`) without blocking interaction or causing sluggish entrance sequences.
-- 116 unit and integration tests passing in Vitest across 22 test suites.
+  - F011: Dynamic navigation/footer (DONE)
+- Dynamic Navigation & Footer architecture implemented:
+  - Navigation entries are dynamic data records stored in `system_settings` (`navigation_config`) with resilient database reads, 300ms bounded timeout, and in-memory TTL caching.
+  - Zero hardcoded navigation copy in JSX; all labels resolved dynamically through localization registry (`nav.projects`, `nav.cv`, `nav.ai_chat`, `nav.job_fit`, `nav.admin`, `nav.sign_in`).
+  - Desktop Navbar with active path highlighting, accessible skip link, brand navigation, badge tags, and embedded locale/theme controls.
+  - Accessible mobile drawer with hamburger toggle button (`aria-expanded`), Escape key handling, route change automatic reset, and smooth `PresenceTransition` motion.
+  - Semantic dynamic Footer with navigation columns, capabilities columns, dynamic copyright notice with current year, and engineering tag.
+  - Integrated into public route layout (`app/[locale]/(public)/layout.tsx`) with proper landmark hierarchy and skip link target (`#main-content`).
+- 125 unit and integration tests passing in Vitest across 24 test suites.
 - Full verification passed (Prettier, ESLint, TypeScript strict, Vitest, Next.js build).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 116/116 tests passed)
+- `pnpm test` (passed, 125/125 tests passed)
 - `pnpm build` (passed, all static SSG and dynamic routes compiled cleanly)
 
 ## Database migrations
@@ -43,11 +44,11 @@ F010 — Motion system (DONE). Next is F011 — Dynamic navigation/footer.
 None.
 
 ## Next action
-Begin **F011 — Dynamic navigation/footer**:
-1. Review `docs/features/21_NAVIGATION.md`, `docs/data/SCHEMA.md`, and `FEATURE_TRACKER.md`.
-2. Implement dynamic navigation bar and footer driven entirely by database/CMS configuration (zero hardcoded links or copy).
-3. Support admin ordering, visibility toggling, external links, social links, and locale-aware label resolution.
-4. Add unit and integration tests for navigation/footer data retrieval and responsive rendering.
+Begin **F012 — Dynamic section builder**:
+1. Review `docs/features/04_DYNAMIC_SECTION_BUILDER.md` and `docs/data/02_DYNAMIC_CONTENT_MODEL.md`.
+2. Implement composable block architecture for sections (hero, projects, skills, contact, custom text/media).
+3. Support section schema validation, order reindexing, visibility toggles, and draft/published states.
+4. Add unit and integration tests for block schemas, section rendering, and dynamic page composition.
 
 ## Important reminders
 - Update this file before ending an agent session.
