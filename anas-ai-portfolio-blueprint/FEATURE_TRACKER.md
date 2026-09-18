@@ -11,7 +11,7 @@ This file is the single progress source of truth.
 
 | ID | Feature | Area | Status | Definition |
 |---|---|---|---|---|
-| F001 | Foundation & repository quality | Core | **IN_PROGRESS** | Initialize Next.js, strict TypeScript, lint/format/test/build scripts, env validation and CI baseline. |
+| F001 | Foundation & repository quality | Core | **DONE** | Initialize Next.js, strict TypeScript, lint/format/test/build scripts, env validation and CI baseline. |
 | F002 | Database & migrations | Data | **PENDING** | PostgreSQL/Drizzle schema foundation, migration workflow and constraints. |
 | F003 | Authentication | Auth | **PENDING** | Sign-up, sign-in, secure sessions, verification-ready flows. |
 | F004 | RBAC & admin protection | Auth | **PENDING** | USER/ADMIN roles, deny-by-default server authorization. |
@@ -62,31 +62,35 @@ This file is the single progress source of truth.
 | F049 | Security test pass | Security/QA | **PENDING** | OWASP-oriented checks, authz, upload validation, injection defense. |
 | F050 | Production deployment & rollback | Ops | **PENDING** | Reproducible deployment, migrations, smoke tests and rollback. |
 
-## Notes / evidence
-
-### Template
-
-```md
-#### F0XX — Feature name
-- Status:
-- Commit/PR:
+#### F001 — Foundation & repository quality
+- Status: DONE
+- Commit/PR: `cda31a16b6d14eebb866b7d83ad838ded625a1c8`
 - Main paths:
+  - `package.json`, `pnpm-lock.yaml`, `tsconfig.json`, `postcss.config.mjs`
+  - `src/lib/config/env.ts`, `.env.example`
+  - `src/lib/observability/logger.ts`
+  - `app/[locale]/layout.tsx`, `app/[locale]/(public)/page.tsx`, `app/page.tsx`
+  - `app/api/health/route.ts`, `app/api/readiness/route.ts`, `app/[locale]/error.tsx`
+  - `.github/workflows/ci.yml`, `eslint.config.mjs`, `.prettierrc`, `vitest.config.ts`
 - Tests:
-- Migrations:
-- Config:
-- Manual QA:
-- Arabic/RTL QA:
-- English/LTR QA:
-- Security notes:
-- Known limitations:
-- Next:
-```
+  - `tests/unit/env.test.ts` (5 tests passed)
+  - `tests/unit/logger.test.ts` (5 tests passed)
+  - `tests/unit/health.test.ts` (2 tests passed)
+  - Total: 12 unit tests passing in Vitest
+- Migrations: None (Foundation phase)
+- Config: Complete Zod runtime environment schema in `src/lib/config/env.ts` with build-phase safety and zero secrets in `.env.example`
+- Manual QA: Clean `next build` static page generation (`/ar`, `/en`, `/api/health`, `/api/readiness`)
+- Arabic/RTL QA: Layout renders `dir="rtl"` with `lang="ar"` for `/ar`
+- English/LTR QA: Layout renders `dir="ltr"` with `lang="en"` for `/en`
+- Security notes: Strict security headers in `next.config.ts`, secret redaction in `logger.ts`, strict Zod input validation
+- Known limitations: None. Fully meeting Definition of Done.
+- Next: F002 — Database & migrations
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 0
-- IN_PROGRESS: 1
+- DONE: 1
+- IN_PROGRESS: 0
 - BLOCKED: 0
 - PENDING: 49
 
