@@ -40,7 +40,7 @@ This file is the single progress source of truth.
 | F027 | BGE reranker adapter | AI | **DONE** | Default multilingual reranking adapter. |
 | F028 | Context builder/dedup/budget | AI | **DONE** | Deterministic context packing and token budget. |
 | F029 | Grounded generation & citations | AI | **DONE** | Evidence-bound answers, source mapping and citation validation. |
-| F030 | Conversation language matching | AI/Frontend | **PENDING** | Assistant replies in user's conversational language. |
+| F030 | Conversation language matching | AI/Frontend | **DONE** | Assistant replies in user's conversational language. |
 | F031 | Portfolio AI Chat | Feature | **PENDING** | Public streaming chatbot with citations. |
 | F032 | Conversation Mode | Feature | **PENDING** | General / Recruiter / Technical modes. |
 | F033 | Ask AI About This Project | Feature | **PENDING** | Hard project scope retrieval filter. |
@@ -766,13 +766,31 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 41 static/dynamic routes compiled cleanly).
 - Next: F030 — Conversation language matching
 
+### F030: Conversation Language Matching (DONE)
+- Implemented production conversational language resolution and direction matching adhering strictly to `docs/ai/11_LANGUAGE_RESOLUTION.md` and `docs/frontend/02_BILINGUAL_RTL_LTR.md`:
+  - `src/ai/contracts/language-resolution.ts` (`ScriptDirection`, `LanguageResolutionStrategy`, `LanguageResolutionInput`, `LanguageResolutionResult`, `LanguageResolverPort`, Zod validation schemas)
+  - `src/ai/contracts/index.ts` (Re-exported language resolution contracts)
+  - `src/ai/language/heuristic-resolver.ts` (`getScriptDirection`, `resolveLanguageHeuristics` evaluating explicit instructions in Arabic and English, Unicode script frequencies, Arabic and English sentence indicators/particles, handling Arabic framing with English technical terms, English framing with Arabic project names, single-word loanwords, and weak conversationLocale / previousLanguage fallback)
+  - `src/ai/language/language-resolver.ts` (`LanguageResolver` service implementing `LanguageResolverPort`)
+  - `src/ai/language/index.ts` (Unified language module export)
+  - `src/ai/generation/grounded-generator.ts` (Integrated `languageResolver` to automatically resolve conversational language when `responseLanguage` is omitted in `GenerationInput`)
+  - `app/api/admin/ai/language/test/route.ts` (Admin-authenticated testing endpoint for conversational language resolution)
+  - Tests:
+    - `tests/unit/heuristic-language-resolver.test.ts` (10 tests)
+    - `tests/unit/language-resolver.test.ts` (4 tests)
+    - `tests/integration/admin-language-test-route.test.ts` (4 tests)
+- Tests:
+  - Total: 506 unit/integration tests passing in Vitest across 81 test suites (81/81 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 42 static/dynamic routes compiled cleanly).
+- Next: F031 — Portfolio AI Chat
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 29
+- DONE: 30
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 21
+- PENDING: 20
 
 The agent must update these totals when statuses change.
 
