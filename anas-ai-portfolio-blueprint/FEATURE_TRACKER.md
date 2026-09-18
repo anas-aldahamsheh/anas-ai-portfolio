@@ -24,7 +24,7 @@ This file is the single progress source of truth.
 | F011 | Dynamic navigation/footer | Content | **DONE** | Admin-managed navigation, footer and visibility/order. |
 | F012 | Dynamic section builder | Content | **DONE** | Admin can create/delete/reorder sections using composable blocks. |
 | F013 | Global admin inline edit mode | Admin | **DONE** | Edit affordance adjacent to dynamic elements for admins only. |
-| F014 | CV viewer/download/versioning | Feature | **PENDING** | Public CV page, viewer/download, admin upload/publish history. |
+| F014 | CV viewer/download/versioning | Feature | **DONE** | Public CV page, viewer/download, admin upload/publish history. |
 | F015 | GitHub profile popover | Feature | **PENDING** | Dynamic GitHub account card with copy/open actions. |
 | F016 | LinkedIn profile popover | Feature | **PENDING** | Dynamic LinkedIn account card with copy/open actions. |
 | F017 | Project catalog | Feature | **PENDING** | Dynamic projects, filters/tags/order/publishing. |
@@ -387,12 +387,38 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
 - Next: F014 — CV viewer/download/versioning
 
+### F014: CV viewer/download/versioning
+- Feature: F014 — CV viewer/download/versioning
+- Status: **DONE**
+- Branch: `feat/f014-cv-viewer-download-versioning`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Added 13 semantic keys for CV titles, actions, versions, dates, size, admin controls)
+  - `src/modules/cv/domain/cv.ts` (`CvVersion`, `PublishedCv`, `validatePdfBytes` magic byte checker, `formatFileSize`)
+  - `src/modules/cv/infrastructure/storage-service.ts` (`CvStorageService` with in-memory map, disk persistence, and baseline valid PDF fallback)
+  - `src/modules/cv/infrastructure/cv-service.ts` (`CvService` with `getPublishedCv`, `createVersion`, `publishVersion`, `rollbackVersion`, `listVersions`, audit logging, cache invalidation)
+  - `app/api/cv/download/route.ts` (Public streaming endpoint with `Content-Type: application/pdf`, cache headers, attachment/inline disposition)
+  - `app/api/admin/cv/route.ts` (Admin route guarded by `requireAdmin` for listing, multipart PDF upload, and publishing/rollback)
+  - `src/modules/cv/presentation/cv-fallback-card.tsx` (Accessible document preview card with download/open actions)
+  - `src/modules/cv/presentation/cv-admin-controls.tsx` (Admin inline panel for version history, upload, and rollback)
+  - `src/modules/cv/presentation/cv-viewer.tsx` (Responsive CV viewer with desktop embedded `<object>` and mobile fallback card)
+  - `src/modules/cv/presentation/index.ts` (Barrel export)
+  - `app/[locale]/(public)/cv/page.tsx` (Dynamic public route with localized metadata and server-rendered data fetching)
+  - `tests/unit/cv-service.test.ts`
+  - `tests/integration/cv-viewer.test.tsx`
+- Tests:
+  - `tests/unit/cv-service.test.ts` (10 tests verifying PDF magic bytes, file size formatting, baseline fallback, caching, upload validation, publish, rollback)
+  - `tests/integration/cv-viewer.test.tsx` (3 tests verifying guest rendering, download links, zero admin UI for guests, admin controls when edit mode is active, and Arabic dynamic localization)
+  - Total: 158 unit/integration tests passing in Vitest across 30 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
+- Next: F015 — GitHub profile popover
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 13
+- DONE: 14
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 37
+- PENDING: 36
 
 The agent must update these totals when statuses change.
