@@ -23,7 +23,7 @@ This file is the single progress source of truth.
 | F010 | Motion system | Frontend | **DONE** | Subtle reusable animations respecting reduced-motion. |
 | F011 | Dynamic navigation/footer | Content | **DONE** | Admin-managed navigation, footer and visibility/order. |
 | F012 | Dynamic section builder | Content | **DONE** | Admin can create/delete/reorder sections using composable blocks. |
-| F013 | Global admin inline edit mode | Admin | **PENDING** | Edit affordance adjacent to dynamic elements for admins only. |
+| F013 | Global admin inline edit mode | Admin | **DONE** | Edit affordance adjacent to dynamic elements for admins only. |
 | F014 | CV viewer/download/versioning | Feature | **PENDING** | Public CV page, viewer/download, admin upload/publish history. |
 | F015 | GitHub profile popover | Feature | **PENDING** | Dynamic GitHub account card with copy/open actions. |
 | F016 | LinkedIn profile popover | Feature | **PENDING** | Dynamic LinkedIn account card with copy/open actions. |
@@ -361,12 +361,38 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
 - Next: F013 — Global admin inline edit mode
 
+### F013: Global admin inline edit mode
+- Feature: F013 — Global admin inline edit mode
+- Status: **DONE**
+- Branch: `feat/f013-global-admin-inline-edit-mode`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/modules/admin/domain/inline-edit.ts` (`EditableRef` type, Zod schema `inlineEditUpdateSchema` with concurrency control, `InlineEditResult`, `InlineEditErrorResult`)
+  - `src/modules/admin/infrastructure/inline-edit-service.ts` (`InlineEditService` persisting edits to blocks, sections, ui_text, navigation, recording immutable audit events in `audit_events`, and invalidating caches)
+  - `app/api/admin/inline-edit/route.ts` (Next.js route handler enforcing `requireAdmin`, validating schema, and responding with 401/403/409/200)
+  - `src/modules/admin/presentation/admin-edit-provider.tsx` (Client React Context for admin capability, edit mode toggle, active editor state, and update subscribers)
+  - `src/modules/admin/presentation/admin-toolbar.tsx` (Unobtrusive floating toolbar rendered only for admins with Edit Mode switch and link to control center)
+  - `src/modules/admin/presentation/editable-region.tsx` (Zero-wrapper pass-through for visitors/guests; hover outline and accessible edit button for admins in edit mode)
+  - `src/modules/admin/presentation/contextual-editor-dialog.tsx` (Accessible modal dialog with Escape handling, form inputs, optimistic update, and router refresh)
+  - `src/modules/admin/presentation/index.ts` (Barrel export)
+  - `app/[locale]/(public)/layout.tsx` (Mounted `AdminEditProvider`, `AdminToolbar`, and `ContextualEditorDialog` with server-checked `isAdmin` status)
+  - `src/modules/content/presentation/section-renderer.tsx` (Wrapped section headers in `EditableRegion`)
+  - `src/modules/content/presentation/block-renderer.tsx` (Wrapped composable blocks in `EditableRegion`)
+  - `tests/unit/inline-edit-service.test.ts`
+  - `tests/integration/admin-inline-edit.test.tsx`
+- Tests:
+  - `tests/unit/inline-edit-service.test.ts` (8 tests verifying domain validation, block update, section update, navigation update, audit logging, and cache invalidation)
+  - `tests/integration/admin-inline-edit.test.tsx` (4 tests verifying zero overhead/elements for guests, toolbar & edit mode toggle for admins, accessible edit handle display, and contextual editor save workflow)
+  - Total: 145 unit/integration tests passing in Vitest across 28 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
+- Next: F014 — CV viewer/download/versioning
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 12
+- DONE: 13
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 38
+- PENDING: 37
 
 The agent must update these totals when statuses change.

@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F012 completed.
+Last updated: F013 completed.
 
 ## Current feature
-F012 — Dynamic section builder (DONE). Next is F013 — Global admin inline edit mode.
+F013 — Global admin inline edit mode (DONE). Next is F014 — CV viewer/download/versioning.
 
 ## Repository state
-- Branch: `feat/f012-dynamic-section-builder`
+- Branch: `feat/f013-global-admin-inline-edit-mode`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -21,20 +21,21 @@ F012 — Dynamic section builder (DONE). Next is F013 — Global admin inline ed
   - F010: Motion system (DONE)
   - F011: Dynamic navigation/footer (DONE)
   - F012: Dynamic section builder (DONE)
-- Dynamic Section Builder architecture implemented:
-  - 11 composable block types strictly validated by Zod schemas: `heading`, `rich_text`, `media`, `cta`, `metrics`, `card_collection`, `timeline`, `skill_tags`, `accordion`, `code_block`, `quote`.
-  - Zero raw HTML injection or script execution; all dynamic block configs and contents render through typed React components.
-  - Resilient `SectionService` reads pages, sections, and blocks from PostgreSQL via Drizzle ORM with bounded fallback to default home sections if DB is offline.
-  - Composable hierarchy: `DynamicPage` -> `SectionRenderer` -> `BlockRenderer` -> Block Components.
-  - Zero hardcoded content in public page (`app/[locale]/(public)/page.tsx`); entirely driven by dynamic section service.
-- 133 unit and integration tests passing in Vitest across 26 test suites.
+  - F013: Global admin inline edit mode (DONE)
+- Global Admin Inline Edit Mode architecture implemented:
+  - Content identity defined with immutable `EditableRef` structure and strict Zod validation (`inlineEditUpdateSchema`).
+  - Authoritative persistence in `InlineEditService` for blocks, sections, UI text, and navigation, with concurrency version checks, immutable audit logging into `audit_events`, and automatic cache invalidation.
+  - Server-guarded route handler `app/api/admin/inline-edit/route.ts` enforcing `requireAdmin`.
+  - Zero-overhead guest-first client design: non-admins and guests receive zero extra DOM wrappers or overhead (`<>{children}</>`).
+  - When edit mode is active for authenticated admins, components display accessible edit handles (`aria-label="Edit {title}"`), subtle hover outlines, a floating `AdminToolbar` with edit mode toggle, and an accessible `ContextualEditorDialog`.
+- 145 unit and integration tests passing in Vitest across 28 test suites.
 - Full verification passed (Prettier, ESLint, TypeScript strict, Vitest, Next.js build).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 133/133 tests passed)
+- `pnpm test` (passed, 145/145 tests passed)
 - `pnpm build` (passed, all static SSG and dynamic routes compiled cleanly)
 
 ## Database migrations
@@ -44,11 +45,11 @@ F012 — Dynamic section builder (DONE). Next is F013 — Global admin inline ed
 None.
 
 ## Next action
-Begin **F013 — Global admin inline edit mode**:
-1. Review `docs/features/05_GLOBAL_INLINE_EDIT_MODE.md`.
-2. Implement admin edit affordance adjacent to dynamic elements for authenticated admins only.
-3. Keep non-admin/guest experience 100% clean with zero admin UI overhead or clutter.
-4. Add unit and integration tests for admin inline edit mode guards and visual affordances.
+Begin **F014 — CV viewer/download/versioning**:
+1. Review `docs/features/06_CV_SYSTEM.md`.
+2. Implement public CV viewer page, download action, and admin upload/versioning history.
+3. Keep all labels dynamic via localization registry; ensure clean RTL/LTR and dark/light modes.
+4. Add unit and integration tests for CV models, download handlers, and rendering.
 
 ## Important reminders
 - Update this file before ending an agent session.
