@@ -12,7 +12,7 @@ This file is the single progress source of truth.
 | ID | Feature | Area | Status | Definition |
 |---|---|---|---|---|
 | F001 | Foundation & repository quality | Core | **DONE** | Initialize Next.js, strict TypeScript, lint/format/test/build scripts, env validation and CI baseline. |
-| F002 | Database & migrations | Data | **PENDING** | PostgreSQL/Drizzle schema foundation, migration workflow and constraints. |
+| F002 | Database & migrations | Data | **DONE** | PostgreSQL/Drizzle schema foundation, migration workflow and constraints. |
 | F003 | Authentication | Auth | **PENDING** | Sign-up, sign-in, secure sessions, verification-ready flows. |
 | F004 | RBAC & admin protection | Auth | **PENDING** | USER/ADMIN roles, deny-by-default server authorization. |
 | F005 | Guest-first public access | Core | **PENDING** | Every public portfolio feature works without authentication. |
@@ -86,12 +86,32 @@ This file is the single progress source of truth.
 - Known limitations: None. Fully meeting Definition of Done.
 - Next: F002 — Database & migrations
 
+#### F002 — Database & migrations
+- Status: DONE
+- Commit/PR: `2503c679e1bbba816a35d0bddae94f7e40e80c84`
+- Main paths:
+  - `drizzle.config.ts`, `drizzle/0000_great_wendell_vaughn.sql`
+  - `src/lib/db/client.ts`, `src/lib/db/migrate.ts`
+  - `src/lib/db/schema/` (auth, localization, content, projects, cv, social, ai, evaluation, admin, index)
+  - `tests/unit/db-schema.test.ts`
+- Tests:
+  - `tests/unit/db-schema.test.ts` (8 tests verifying all 50 tables, enums, UUID pk, constraints)
+  - Total: 20 unit tests passing in Vitest across all modules
+- Migrations: `drizzle/0000_great_wendell_vaughn.sql` (generated with `drizzle-kit generate`, covering 50 tables, foreign keys, indexes)
+- Config: `drizzle.config.ts` configured for PostgreSQL dialect with strict checking
+- Manual QA: Generated migrations reviewed, verified table definitions, enums, cascade deletes, and indexes
+- Arabic/RTL QA: All translation tables (`ui_text_translations`, `page_translations`, `section_translations`, `project_translations`, `social_profile_translations`) support dynamic RTL text without length limits
+- English/LTR QA: Dual-language schema support with explicit locale reference
+- Security notes: Explicit foreign key constraints with cascade/set null, encrypted secret references schema for AES-256-GCM tokens, audit events schema with immutable records and IP/UA tracking
+- Known limitations: None. Fully meeting Definition of Done.
+- Next: F003 — Authentication
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 1
+- DONE: 2
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 49
+- PENDING: 48
 
 The agent must update these totals when statuses change.
