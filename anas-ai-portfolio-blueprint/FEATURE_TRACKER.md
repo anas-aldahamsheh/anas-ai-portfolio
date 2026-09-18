@@ -44,7 +44,7 @@ This file is the single progress source of truth.
 | F031 | Portfolio AI Chat | Feature | **DONE** | Public streaming chatbot with citations. |
 | F032 | Conversation Mode | Feature | **DONE** | General / Recruiter / Technical modes. |
 | F033 | Ask AI About This Project | Feature | **DONE** | Hard project scope retrieval filter. |
-| F034 | Job Fit Analyzer | Feature | **PENDING** | Maps pasted JD requirements to verified portfolio evidence. |
+| F034 | Job Fit Analyzer | Feature | **DONE** | Maps pasted JD requirements to verified portfolio evidence. |
 | F035 | AI Lab | Feature | **PENDING** | Public interactive AI demonstrations configured from admin. |
 | F036 | RAG Debug View | Feature | **PENDING** | Safe retrieval telemetry without chain-of-thought. |
 | F037 | Evaluation Dashboard | Feature | **PENDING** | Public/admin metrics for retrieval/generation quality. |
@@ -838,13 +838,33 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 45 static/dynamic routes compiled cleanly).
 - Next: F034 — Job Fit Analyzer
 
+### F034: Job Fit Analyzer (DONE)
+- Implemented production Job Fit Analyzer adhering strictly to `docs/features/13_JOB_FIT_ANALYZER.md`, `prompts/job-fit.md`, `docs/features/01_GUEST_ACCESS.md`, `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`, and `docs/testing/02_RTL_LTR_TEST_MATRIX.md`:
+  - `src/ai/contracts/job-fit.ts`: Core domain models (`JobFitEvidenceStatus`, `JobFitCitation`, `JobFitRequirementMatch`, `JobFitAnalysisSummary`, `JobFitAnalysisResult`, and `JobFitRequestSchema` validation).
+  - `src/ai/contracts/index.ts`: Exported job-fit contracts.
+  - `src/ai/job-fit/job-fit-service.ts`: `JobFitService` orchestrating language resolution, hybrid retrieval (`policy-job-fit`), cross-encoder reranking, context budgeting, prompt rendering, LLM completion, citation grounding/validation, and offline heuristic alignment fallback with zero persistence.
+  - `src/ai/job-fit/index.ts`: Barrel export.
+  - `app/api/job-fit/route.ts`: Public validated `POST /api/job-fit` endpoint returning structured alignment results.
+  - `src/modules/localization/infrastructure/core-system-keys.ts`: Added 26 bilingual keys for Job Fit Analyzer (titles, status pills, filter tabs, sample JDs, confidentiality badge, report copying).
+  - `src/modules/job-fit/presentation/job-fit-analyzer.tsx`: Premium recruiter-focused UI with sample JD loaders, match percentage gauge, status breakdown pills, filterable requirement cards, interactive citation badges, and clipboard report export.
+  - `src/modules/job-fit/presentation/index.ts`: Barrel export.
+  - `app/[locale]/(public)/job-fit/page.tsx`: Public route with dynamic localized metadata.
+  - Tests:
+    - `tests/unit/job-fit-service.test.ts` (4 unit tests verifying structured LLM parsing, citation grounding, heuristic fallback, and Arabic language resolution)
+    - `tests/integration/job-fit-api.test.ts` (3 integration tests verifying input validation, successful matching, and server error handling)
+    - `tests/integration/job-fit-ui.test.tsx` (4 integration tests covering rendering, sample selection, analysis submission, status filtering, and Arabic RTL layout)
+- Tests:
+  - Total: 555 unit/integration tests passing in Vitest across 92 test suites (92/92 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 48 static/dynamic routes compiled cleanly).
+- Next: F035 — AI Lab
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 33
+- DONE: 34
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 17
+- PENDING: 16
 
 The agent must update these totals when statuses change.
 
