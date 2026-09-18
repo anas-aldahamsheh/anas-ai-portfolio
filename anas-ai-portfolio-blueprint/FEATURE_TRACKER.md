@@ -31,7 +31,7 @@ This file is the single progress source of truth.
 | F018 | Project Deep Dive | Feature | **DONE** | Block-based rich project detail pages. |
 | F019 | AI provider/model registry | AI/Admin | **DONE** | Admin manages generation/embedding/reranker providers/models/endpoints. |
 | F020 | Secrets management | Security/Admin | **DONE** | Safe encrypted API credential management and redaction. |
-| F021 | Prompt registry & versioning | AI/Admin | **PENDING** | Admin-editable prompt versions with rollback. |
+| F021 | Prompt registry & versioning | AI/Admin | **DONE** | Admin-editable prompt versions with rollback. |
 | F022 | RAG ingestion pipeline | AI | **PENDING** | Normalize, chunk, embed, metadata, index, update/delete sync. |
 | F023 | BGE-M3 embedding adapter | AI | **PENDING** | Default multilingual embedding integration behind provider interface. |
 | F024 | Hybrid retrieval | AI | **PENDING** | Dense + sparse retrieval, metadata filtering and fusion. |
@@ -562,13 +562,48 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 26 routes compiled cleanly).
 - Next: F021 — Prompt registry & versioning
 
+### F021: Prompt registry & versioning
+- Feature: F021 — Prompt registry & versioning
+- Status: **DONE**
+- Branch: `feat/f021-prompt-registry-versioning`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/ai/contracts/prompt-registry.ts` (Typed prompt roles union, domain models for versions, summaries, details, diffs, and Zod validation schemas)
+  - `src/ai/contracts/index.ts` (Exported prompt contracts)
+  - `src/ai/prompts/prompt-template.ts` (Safe placeholder extraction `{{var}}` and `{var}`, template interpolation, and variable schema validation)
+  - `src/ai/prompts/baseline-prompts.ts` (7 production-grade baseline prompts for `chat_system`, `query_router`, `query_rewriter`, `job_fit`, `evaluator`, `conversation_mode`, `summarizer`)
+  - `src/ai/prompts/prompt-diff.ts` (Structural and textual diff engine between version pairs)
+  - `src/ai/prompts/prompt-service.ts` (`PromptService` handling Drizzle persistence on `prompts` and `promptVersions`, TTL active version caching, auto-incrementing version numbers, rollback, clone, dry-run template testing, and audit logging to `auditEvents`)
+  - `src/ai/prompts/index.ts` (Barrel export for AI prompt modules)
+  - `app/api/admin/prompts/route.ts` (Admin GET listing & POST creation endpoints guarded by `requireAdmin`)
+  - `app/api/admin/prompts/[slug]/route.ts` (Admin GET details/history & POST new version endpoints guarded by `requireAdmin`)
+  - `app/api/admin/prompts/[slug]/rollback/route.ts` (Admin POST rollback endpoint with transaction deactivation and activation guarded by `requireAdmin`)
+  - `app/api/admin/prompts/[slug]/compare/route.ts` (Admin GET diff comparison between two versions guarded by `requireAdmin`)
+  - `app/api/admin/prompts/test/route.ts` (Admin POST template rendering test preview endpoint guarded by `requireAdmin`)
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Added 18 dynamic Arabic RTL and English LTR localization keys for prompt registry)
+  - `src/modules/admin/presentation/prompt-registry-manager.tsx` (Interactive admin UI with prompt selection, active version inspection, version history list with one-click rollback, version drafting form, version diff viewer, and interactive variable tester)
+  - `src/modules/admin/presentation/index.ts` (Exported `PromptRegistryManager`)
+  - `app/[locale]/admin/prompts/page.tsx` (Admin route for prompt registry with SSR prefetching and dynamic localized metadata)
+  - `app/[locale]/admin/layout.tsx` (Added `Prompts` to admin navigation sidebar)
+  - `tests/unit/prompt-service.test.ts` (14 unit tests covering variable extraction, baseline fallbacks, active prompt resolution, variable validation, dry-run testing, version diffing, creation, rollback, and audit logging)
+  - `tests/integration/prompt-endpoints.test.ts` (13 integration tests verifying security barriers, prompt listing, version creation, rollbacks, version comparison, and variable preview testing)
+  - `tests/integration/prompt-registry-ui.test.tsx` (4 integration tests covering rendering prompt cards, switching tabs to version history, drafting new version, and Arabic RTL layout)
+- Tests:
+  - `tests/unit/prompt-service.test.ts` (14 tests passing)
+  - `tests/integration/prompt-endpoints.test.ts` (13 tests passing)
+  - `tests/integration/prompt-registry-ui.test.tsx` (4 tests passing)
+  - Total: 291 unit/integration tests passing in Vitest across 43 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 30 routes compiled cleanly).
+- Next: F022 — RAG ingestion pipeline
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 20
+- DONE: 21
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 30
+- PENDING: 29
 
 The agent must update these totals when statuses change.
+
 

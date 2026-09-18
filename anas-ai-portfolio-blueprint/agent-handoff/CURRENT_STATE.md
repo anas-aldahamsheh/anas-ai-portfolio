@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F020 completed.
+Last updated: F021 completed.
 
 ## Current feature
-F020 — Secrets management (DONE). Next is F021 — Prompt registry & versioning.
+F021 — Prompt registry & versioning (DONE). Next is F022 — RAG ingestion pipeline.
 
 ## Repository state
-- Branch: `feat/f020-secrets-management`
+- Branch: `feat/f021-prompt-registry-versioning`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -29,22 +29,24 @@ F020 — Secrets management (DONE). Next is F021 — Prompt registry & versionin
   - F018: Project Deep Dive (DONE)
   - F019: AI provider/model registry (DONE)
   - F020: Secrets management (DONE)
-- Secrets Management Architecture implemented:
-  - Encryption (`src/lib/security/encryption.ts`): Authenticated AES-256-GCM symmetric encryption/decryption using 32-byte master key with random 12-byte IVs, 16-byte auth tags, and constant-time comparisons.
-  - SSRF Defense (`src/lib/security/ssrf-defense.ts`): Zero-trust outbound URL validator enforcing HTTPS, stripping IPv6 brackets, and strictly blocking loopback, link-local, RFC-1918 private subnets in production, cloud metadata endpoints, and sensitive ports.
-  - Redaction (`src/lib/security/redaction.ts`): Deep key-based and regex-based redaction for structured objects, error messages, and logs ensuring zero API key/token leakage.
-  - Core Secrets Service (`src/lib/security/secrets-service.ts`): Authoritative `SecretsService` handling encrypted storage in `secretReferences`, write-only masked previews e.g. `sk-...cdef`, display-safe metadata queries, secret removal, and audit logging.
-  - Display-safe integration (`src/ai/contracts/provider-registry.ts` & `src/ai/orchestration/model-registry-service.ts`): Enriched provider cards with write-only metadata (`hasApiKey`, `maskedKey`).
-  - Admin APIs (`app/api/admin/secrets/`): Endpoints for metadata listing, secret writing, and secret deletion strictly guarded by `requireAdmin`.
-- 260 unit and integration tests passing in Vitest across 40 test suites.
-- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 260/260, Next.js build clean with all 26 static & dynamic routes compiled).
+  - F021: Prompt registry & versioning (DONE)
+- Prompt Registry & Versioning Architecture implemented:
+  - Domain & Contracts (`src/ai/contracts/prompt-registry.ts`): Typed prompt roles union, version/summary/detail models, diff types, and Zod input validation schemas.
+  - Template Engine (`src/ai/prompts/prompt-template.ts`): Safe placeholder extraction (`{{var}}`, `{var}`), template interpolation, and schema validation.
+  - Production Baselines (`src/ai/prompts/baseline-prompts.ts`): 7 production-grade prompt templates for `chat_system`, `query_router`, `query_rewriter`, `job_fit`, `evaluator`, `conversation_mode`, `summarizer`.
+  - Diff Engine (`src/ai/prompts/prompt-diff.ts`): Computes structural differences, text modifications, and variable changes between version pairs.
+  - Core Prompt Service (`src/ai/prompts/prompt-service.ts`): Authoritative database persistence on `prompts` and `promptVersions`, TTL in-memory active cache, automatic version numbering, one-click rollback, dry-run template tester, and audit logging to `auditEvents`.
+  - Admin REST APIs (`app/api/admin/prompts/`): Endpoints for listing, details, new versions, rollback, diff comparison, and testing guarded by `requireAdmin`.
+  - Admin UI (`src/modules/admin/presentation/prompt-registry-manager.tsx` and `app/[locale]/admin/prompts/page.tsx`): Interactive control panel with version inspection, history, one-click rollback, version drafting, diff comparison, and interactive variable tester with full RTL/LTR Arabic/English localization.
+- 291 unit and integration tests passing in Vitest across 43 test suites.
+- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 291/291, Next.js build clean with all 30 static & dynamic routes compiled).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 260/260 tests passed across 40 suites)
-- `pnpm build` (passed, all 26 static SSG and dynamic SSR routes compiled cleanly)
+- `pnpm test` (passed, 291/291 tests passed across 43 suites)
+- `pnpm build` (passed, all 30 static SSG and dynamic SSR routes compiled cleanly)
 
 ## Database migrations
 - `drizzle/0000_great_wendell_vaughn.sql` (committed)
@@ -53,11 +55,12 @@ F020 — Secrets management (DONE). Next is F021 — Prompt registry & versionin
 None.
 
 ## Next action
-Begin **F021 — Prompt registry & versioning**:
-1. Review `docs/admin/04_PROMPT_MANAGEMENT.md` and `docs/ai/` specifications for prompt registry and versioning.
-2. Implement prompt versions schema / domain models with variable schema validation, rollback capability, and localization support.
-3. Build admin REST APIs and management UI for prompts.
-4. Add unit and integration tests.
+Begin **F022 — RAG ingestion pipeline**:
+1. Review `docs/ai/01_MODULAR_RAG_OVERVIEW.md`, `docs/ai/02_INGESTION_PIPELINE.md`, and `docs/ai/03_CHUNKING.md`.
+2. Implement chunking and content normalization service for projects, CV, sections, and portfolio knowledge items.
+3. Build document embedding and vector/metadata indexing storage.
+4. Implement sync triggers on content update and deletion.
+5. Add unit and integration tests.
 
 ## Important reminders
 - Update this file before ending an agent session.
