@@ -7,6 +7,23 @@ import { BASELINE_EVALUATION_DASHBOARD_DATA } from "@/ai/evaluation/baseline-eva
 describe("EvaluationAdminManager Component (F037)", () => {
   const dictionaryEn: Record<string, string> = {
     "eval.admin.title": "AI Evaluation Control Center",
+    "eval.admin.env.title": "Active Runtime AI Environment",
+    "eval.admin.env.generation": "Generation",
+    "eval.admin.env.embedding": "Embedding",
+    "eval.admin.env.reranker": "Reranker",
+    "eval.admin.env.retrieval_policy": "Retrieval Policy",
+    "eval.runner.title": "AI Evaluation Runner & Regression Gate",
+    "eval.runner.desc": "Execute automated benchmark test suites",
+    "eval.runner.trigger": "Run Benchmark Suite",
+    "eval.runner.running": "Running Benchmark Suite...",
+    "eval.runner.mode.label": "Evaluation Mode:",
+    "eval.runner.mode.full": "Full Suite",
+    "eval.runner.mode.retrieval": "Retrieval Only",
+    "eval.runner.mode.generation": "Generation & Safety",
+    "eval.runner.gate.title": "Release Gate Decision",
+    "eval.runner.gate.passed": "GATE PASSED",
+    "eval.runner.gate.warning": "GATE WARNING",
+    "eval.runner.gate.blocked": "GATE BLOCKED",
     "eval.admin.compare.title": "Quality Regression Comparison",
     "eval.admin.compare.no_regression": "No Critical Regression Detected",
     "eval.admin.compare.has_regression": "Regression Detected in Candidate",
@@ -14,6 +31,23 @@ describe("EvaluationAdminManager Component (F037)", () => {
 
   const dictionaryAr: Record<string, string> = {
     "eval.admin.title": "مركز إدارة وتقييم جودة النماذج",
+    "eval.admin.env.title": "بيئة الذكاء الاصطناعي التشغيلية النشطة",
+    "eval.admin.env.generation": "نموذج التوليد",
+    "eval.admin.env.embedding": "نموذج التضمين",
+    "eval.admin.env.reranker": "نموذج إعادة الترتيب",
+    "eval.admin.env.retrieval_policy": "سياسة استرجاع البيانات",
+    "eval.runner.title": "تشغيل حزمة تقييم الذكاء الاصطناعي وبوابة الانحدار",
+    "eval.runner.desc": "تنفيذ اختبارات معيارية مؤتمتة",
+    "eval.runner.trigger": "بدء فحص الحزمة والمعايير",
+    "eval.runner.running": "جارٍ تشغيل التقييم والفحص...",
+    "eval.runner.mode.label": "نطاق التقييم:",
+    "eval.runner.mode.full": "شامل",
+    "eval.runner.mode.retrieval": "الاسترجاع فقط",
+    "eval.runner.mode.generation": "التوليد والأمان",
+    "eval.runner.gate.title": "قرار بوابة الاعتماد",
+    "eval.runner.gate.passed": "اجتاز بنجاح",
+    "eval.runner.gate.warning": "تحذير أداء",
+    "eval.runner.gate.blocked": "محظور",
     "eval.admin.compare.title": "فحص انحدار الجودة ومقارنة الجولات",
     "eval.admin.compare.no_regression": "لا يوجد انحدار ملحوظ (جاهز للاعتماد)",
     "eval.admin.compare.has_regression": "تم رصد انحدار في بعض المقاييس",
@@ -106,4 +140,63 @@ describe("EvaluationAdminManager Component (F037)", () => {
     expect(container).toHaveAttribute("dir", "rtl");
     expect(screen.getByText("مركز إدارة وتقييم جودة النماذج")).toBeInTheDocument();
   });
+
+  it("triggers AI evaluation runner and renders gate verdict and case results", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          run: {
+            ...BASELINE_EVALUATION_DASHBOARD_DATA.recentRuns[0],
+            id: "run-new-test",
+            passedCases: 4,
+            totalCases: 4,
+          },
+          gate: {
+            verdict: "PASSED",
+            passed: true,
+            message: "All release gates passed",
+            regressions: [],
+            warnings: [],
+            metricsSummary: {
+              recallAt5: 0.94,
+              precisionAt5: 0.88,
+              mrr: 0.9,
+              faithfulness: 0.99,
+              citationCorrectness: 0.98,
+              arabicParityRatio: 0.97,
+              averageLatencyMs: 140,
+            },
+          },
+          caseResults: [
+            {
+              caseId: "c1",
+              query: "Test query 1",
+              localeCode: "en",
+              category: "retrieval",
+              passed: true,
+              latencyMs: 45,
+              metrics: { recallAtK: 1 },
+            },
+          ],
+        },
+      }),
+    } as unknown as Response);
+
+    renderAdminManager();
+
+    expect(screen.getByTestId("evaluation-runner-card")).toBeInTheDocument();
+    const triggerBtn = screen.getByTestId("btn-trigger-eval-runner");
+    fireEvent.click(triggerBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("runner-result-panel")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("GATE PASSED")).toBeInTheDocument();
+    expect(screen.getByText("94.0%")).toBeInTheDocument();
+    expect(screen.getByText("99.0%")).toBeInTheDocument();
+  });
 });
+

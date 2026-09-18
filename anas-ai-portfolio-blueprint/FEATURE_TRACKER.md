@@ -48,7 +48,7 @@ This file is the single progress source of truth.
 | F035 | AI Lab | Feature | **DONE** | Public interactive AI demonstrations configured from admin. |
 | F036 | RAG Debug View | Feature | **DONE** | Safe retrieval telemetry without chain-of-thought. |
 | F037 | Evaluation Dashboard | Feature | **DONE** | Public/admin metrics for retrieval/generation quality. |
-| F038 | AI evaluation runner | AI | **PENDING** | Dataset-driven regression evaluation. |
+| F038 | AI evaluation runner | AI | **DONE** | Dataset-driven regression evaluation. |
 | F039 | Admin content center | Admin | **PENDING** | Manage pages, sections, blocks, projects and publishing. |
 | F040 | Admin AI control center | Admin | **PENDING** | Full RAG/model/prompt/API configuration UI. |
 | F041 | Audit log | Admin/Security | **PENDING** | Immutable-style audit events for sensitive changes. |
@@ -931,15 +931,35 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 61 static/dynamic routes compiled cleanly).
 - Next: F038 — AI evaluation runner
 
+### F038: AI Evaluation Runner (DONE)
+- Implemented production dataset-driven AI evaluation runner and regression gate adhering strictly to `docs/ai/15_AI_EVALUATION.md`, `docs/testing/03_AI_EVAL_GATE.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/ai/contracts/evaluation.ts`: Core contracts (`EvaluationCategory`, `EvaluationCaseItem`, `EvaluationCaseResult`, `GateVerdict`, `EvaluationGateDecision`, `RunEvaluationRequestSchema`, `EvaluationRunExecutionResponse`).
+  - `src/ai/contracts/index.ts`: Re-exported runner contracts.
+  - `src/ai/evaluation/golden-benchmark-cases.ts`: Curated authentic golden benchmark test cases (bilingual Arabic RTL and English LTR) separated strictly into retrieval, generation, negative refusal (hallucination defense), project-scoped, and security injection resistance.
+  - `src/ai/evaluation/evaluation-runner.ts`: Implemented `EvaluationRunner` engine executing evaluation suites across modes (`full`, `retrieval`, `generation`). Calculates Recall@K, Precision@K, MRR, Faithfulness, Citation Correctness, Answer Relevance, and Refusal Correctness. Computes Arabic/English cross-lingual parity and evaluates release gates (`PASSED`, `WARNING`, `BLOCKED`) with safe DB persistence fallback.
+  - `src/ai/evaluation/index.ts`: Barrel export.
+  - `app/api/admin/evaluation/run/route.ts`: Secure `POST /api/admin/evaluation/run` endpoint guarded by `requireAdmin(request.headers)` for triggering benchmarks and release gate validations.
+  - `src/modules/localization/infrastructure/core-system-keys.ts`: Added 14 dynamic localized keys (`eval.runner.*`) for runner title, description, modes, trigger button, gate verdicts, and results.
+  - `src/modules/admin/presentation/evaluation-admin-manager.tsx`: Added interactive "AI Evaluation Runner & Regression Gate (F038)" card with mode selector, benchmark trigger button, live execution indicator, gate verdict badge (`PASSED`, `WARNING`, `BLOCKED`), metric summary pills (Recall@5, Faithfulness, Citation Precision, AR/EN Parity, Latency), and detailed case results table toggle.
+  - Tests:
+    - `tests/unit/evaluation-runner.test.ts` (7 tests verifying full run, retrieval-only filtering, generation-only filtering, Arabic/English parity, negative refusal, release gate blocking on low faithfulness, and DB timeout safety)
+    - `tests/integration/evaluation-runner-api.test.ts` (4 tests verifying 401 unauthorized, 403 forbidden, 400 validation error, and 200 successful execution with gate verdict)
+    - `tests/integration/evaluation-admin.test.tsx` (5 tests verifying runner card rendering, benchmark trigger, gate verdict badge, and case results display)
+- Tests:
+  - Total: 636 unit/integration tests passing in Vitest across 104 test suites (104/104 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 61 static/dynamic routes compiled cleanly).
+- Next: F039 — Admin content center
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 37
+- DONE: 38
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 13
+- PENDING: 12
 
 The agent must update these totals when statuses change.
+
 
 
 
