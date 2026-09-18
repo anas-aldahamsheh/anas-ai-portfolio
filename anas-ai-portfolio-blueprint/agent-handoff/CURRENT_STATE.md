@@ -1,14 +1,14 @@
 # Current State
 
-Last updated: F006 completed.
+Last updated: F007 completed.
 
 ## Current feature
-F006 — Dynamic localization registry (DONE).
-Next: F007 — Automatic RTL/LTR system (PENDING).
+F007 — Automatic RTL/LTR system (DONE).
+Next: F008 — Light/dark theme (PENDING).
 
 ## Repository state
-- Branch: `feat/f006-dynamic-localization-registry`
-- Last commit: `de8aa8c`
+- Branch: `feat/f007-automatic-rtl-ltr-system`
+- Last commit: `83e0f22`
 - Completed features:
   - F001: Foundation & repository quality (DONE)
   - F002: Database & migrations (DONE)
@@ -16,17 +16,20 @@ Next: F007 — Automatic RTL/LTR system (PENDING).
   - F004: RBAC & admin protection (DONE)
   - F005: Guest-first public access (DONE)
   - F006: Dynamic localization registry (DONE)
-- Dynamic localization registry implemented with database-backed `LocalizedTextService`, in-memory TTL caching, fallback resolution, structured missing key logging, and completeness auditing.
-- Server-side `getTranslations(locale)` and client-side `LocalizationProvider` / `useTranslation()` active with parameter interpolation.
-- Core system UI keys dictionary in `src/modules/localization/infrastructure/core-system-keys.ts` with zero hardcoded user-facing strings in public pages.
-- 63 unit and integration tests passing in Vitest across 14 test suites.
+  - F007: Automatic RTL/LTR system (DONE)
+- Bidirectional RTL/LTR architecture implemented:
+  - Root direction dynamically set: `<html lang="ar" dir="rtl">` vs `<html lang="en" dir="ltr">`.
+  - Directional icons mirror horizontally in RTL (`DirectionalIcon` with `rtl:-scale-x-100`); universal icons remain unflipped.
+  - Mixed dynamic content isolated with `<MixedContent>` using Arabic script detection and `<IsolatedToken>` for code/technical identifiers.
+  - Overlays and client portals inherit direction via `<DirectionProvider>`.
+- 77 unit and integration tests passing in Vitest across 16 test suites.
 - Full verification passed (Prettier, ESLint, TypeScript strict, Vitest, Next.js build).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 63/63 tests passed)
+- `pnpm test` (passed, 77/77 tests passed)
 - `pnpm build` (passed, all static SSG and dynamic routes compiled cleanly)
 
 ## Database migrations
@@ -36,17 +39,17 @@ Next: F007 — Automatic RTL/LTR system (PENDING).
 None.
 
 ## Next action
-Begin **F007 — Automatic RTL/LTR system**:
-1. Review `docs/frontend/02_BILINGUAL_RTL_LTR.md` and `NON_NEGOTIABLES.md` Rules 3-7.
-2. Implement bidirectional CSS utilities and layout structure ensuring proper logical properties (`margin-inline`, `padding-inline`, `inset-inline`, `text-align: start/end`).
-3. Build directional icon adapter ensuring asymmetrical directional icons (arrows, chevrons) flip in RTL while universal icons (play, external link, branding) remain unflipped.
-4. Support mixed content direction (`dir="auto"`) for user input, code blocks, URLs, and AI chat.
-5. Add unit and visual tests for bidirectional rendering and overlay portals.
+Begin **F008 — Light/dark theme**:
+1. Review `docs/frontend/03_THEME.md` and `NON_NEGOTIABLES.md` Rules 17, 18, 19.
+2. Implement Theme domain model (`light`, `dark`, `system`), cookie/storage persistence, and hydration-safe theme script.
+3. Build ThemeProvider and ThemeToggle component supporting guests and authenticated users.
+4. Add unit and integration tests for theme resolution, persistence, and contrast standards.
 
 ## Important reminders
 - Update this file before ending an agent session.
 - Update `FEATURE_TRACKER.md`.
 - Never claim DONE without tests meeting Definition of Done.
+
 
 
 

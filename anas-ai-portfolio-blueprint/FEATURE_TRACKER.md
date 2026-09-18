@@ -17,7 +17,7 @@ This file is the single progress source of truth.
 | F004 | RBAC & admin protection | Auth | **DONE** | USER/ADMIN roles, deny-by-default server authorization. |
 | F005 | Guest-first public access | Core | **DONE** | Every public portfolio feature works without authentication. |
 | F006 | Dynamic localization registry | Frontend/Data | **DONE** | Database-backed Arabic/English UI text with no hardcoded portfolio labels. |
-| F007 | Automatic RTL/LTR system | Frontend | **PENDING** | Correct direction across all layouts, content, overlays, forms and chat. |
+| F007 | Automatic RTL/LTR system | Frontend | **DONE** | Correct direction across all layouts, content, overlays, forms and chat. |
 | F008 | Light/dark theme | Frontend | **PENDING** | System-aware theme plus persistent user/guest override. |
 | F009 | Design system & custom Select | Frontend | **PENDING** | Minimal design primitives; all dropdowns styled and accessible. |
 | F010 | Motion system | Frontend | **PENDING** | Subtle reusable animations respecting reduced-motion. |
@@ -202,12 +202,37 @@ This file is the single progress source of truth.
 - Known limitations: None. Fully meeting Definition of Done.
 - Next: F007 — Automatic RTL/LTR system
 
+#### F007 — Automatic RTL/LTR system
+- Status: DONE
+- Commit/PR: `83e0f22`
+- Main paths:
+  - `src/modules/localization/domain/direction.ts` (Direction types, DIRECTIONAL_ICONS registry, isDirectionalIcon, getIconDirectionClass, detectScriptDirection)
+  - `src/modules/localization/presentation/directional-icon.tsx` (Direction-aware icon wrapper automatically mirroring forward/backward chevrons and arrows while preserving universal icons)
+  - `src/modules/localization/presentation/mixed-content.tsx` (MixedContent and IsolatedToken components for bidirectional script isolation)
+  - `src/modules/localization/presentation/direction-provider.tsx` (DirectionProvider React context for overlay/portal direction propagation)
+  - `app/globals.css` (Bidirectional font stacks, logical start alignment, code block direction isolation)
+  - `app/[locale]/layout.tsx` (RootLayout wrapped with DirectionProvider)
+  - `app/[locale]/(public)/page.tsx` (Showcasing DirectionalIcon chevron-end and MixedContent isolation)
+  - `tests/unit/direction.test.ts`, `tests/integration/rtl-ltr-layout.test.ts`
+- Tests:
+  - `tests/unit/direction.test.ts` (10 tests covering script detection, directional icon classification, and mirroring CSS classes)
+  - `tests/integration/rtl-ltr-layout.test.ts` (4 tests verifying root direction mapping, icon mirroring, reading order preservation, and universal icon non-inversion)
+  - Total: 77 unit/integration tests passing in Vitest across 16 test suites
+- Migrations: None required (layout and styling architecture)
+- Config: Strictly logical bidirectional CSS rules; universal icons (play, external-link, branding) never mirrored
+- Manual QA: Tested `/ar` (renders `dir="rtl"` with properly flipped directional chevrons) and `/en` (renders `dir="ltr"` with forward chevrons)
+- Arabic/RTL QA: Arabic typography utilizes system Arabic font stack with start alignment and LTR-isolated code blocks
+- English/LTR QA: Clean LTR typography and layout alignment
+- Security notes: Clean DOM rendering with zero dangerous HTML or unsanitized script attributes
+- Known limitations: None. Fully meeting Definition of Done.
+- Next: F008 — Light/dark theme
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 6
+- DONE: 7
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 44
+- PENDING: 43
 
 The agent must update these totals when statuses change.
