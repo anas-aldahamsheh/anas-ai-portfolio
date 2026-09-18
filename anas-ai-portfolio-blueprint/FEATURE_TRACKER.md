@@ -29,7 +29,7 @@ This file is the single progress source of truth.
 | F016 | LinkedIn profile popover | Feature | **DONE** | Dynamic LinkedIn account card with copy/open actions. |
 | F017 | Project catalog | Feature | **DONE** | Dynamic projects, filters/tags/order/publishing. |
 | F018 | Project Deep Dive | Feature | **DONE** | Block-based rich project detail pages. |
-| F019 | AI provider/model registry | AI/Admin | **PENDING** | Admin manages generation/embedding/reranker providers/models/endpoints. |
+| F019 | AI provider/model registry | AI/Admin | **DONE** | Admin manages generation/embedding/reranker providers/models/endpoints. |
 | F020 | Secrets management | Security/Admin | **PENDING** | Safe encrypted API credential management and redaction. |
 | F021 | Prompt registry & versioning | AI/Admin | **PENDING** | Admin-editable prompt versions with rollback. |
 | F022 | RAG ingestion pipeline | AI | **PENDING** | Normalize, chunk, embed, metadata, index, update/delete sync. |
@@ -509,12 +509,42 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (`/[locale]/projects/[slug]` route generated).
 - Next: F019 — AI provider/model registry
 
+### F019: AI provider/model registry
+- Feature: F019 — AI provider/model registry
+- Status: **DONE**
+- Branch: `feat/f019-ai-provider-model-registry`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/ai/contracts/provider-registry.ts` (Domain types, capabilities union, provider types, display-safe types, and Zod schemas for providers, models, assignments, and policies)
+  - `src/ai/contracts/baseline-registry.ts` (Authentic production baselines for OpenAI Compatible Gateway, Anthropic Direct, BGE TEI Hub, and Ollama with default capability assignments)
+  - `src/ai/contracts/index.ts` (Barrel export for AI contracts)
+  - `src/ai/orchestration/model-registry-service.ts` (`ModelRegistryService` with in-memory TTL caching, database persistence across `aiProviders`, `aiModels`, `aiModelAssignments`, `aiRuntimePolicies`, capability-role compatibility checks, dynamic model assignment without redeployment, audit logging, and capability verification per `19_MODEL_HEALTH_AND_CAPABILITY_CHECKS.md`)
+  - `app/api/admin/ai/providers/route.ts` (Admin GET & POST endpoints guarded by `requireAdmin`)
+  - `app/api/admin/ai/providers/[id]/route.ts` (Admin PATCH & DELETE endpoints guarded by `requireAdmin`)
+  - `app/api/admin/ai/models/route.ts` (Admin GET & POST endpoints with optional capability filtering)
+  - `app/api/admin/ai/models/[id]/route.ts` (Admin PATCH & DELETE endpoints guarded by `requireAdmin`)
+  - `app/api/admin/ai/models/[id]/test/route.ts` (Admin POST endpoint for capability verification)
+  - `app/api/admin/ai/assignments/route.ts` (Admin GET & PUT endpoints for instant capability role assignment)
+  - `app/api/admin/ai/policy/route.ts` (Admin GET & PATCH endpoints for runtime policy configuration)
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Added "admin" to key category union and registered 16 dynamic keys for AI registry title, tabs, capabilities, test status)
+  - `src/modules/admin/presentation/ai-registry-manager.tsx` (Interactive tabbed admin dashboard for managing capability assignments, providers, models, capability verification, and runtime policy with full Arabic RTL and English LTR support)
+  - `src/modules/admin/presentation/index.ts` (Exported `AiRegistryManager`)
+  - `app/[locale]/admin/ai/page.tsx` (Admin route with SSR pre-fetching and dynamic localized metadata)
+  - `tests/unit/model-registry-service.test.ts` (18 unit tests covering baseline resolution, provider/model CRUD, capability assignment compatibility, runtime policy updates, and capability health checks)
+  - `tests/integration/ai-provider-registry.test.tsx` (9 integration tests covering tab navigation, capability cards, provider/model lists, live capability testing, policy configuration, Arabic localization, and API route security guards)
+- Tests:
+  - `tests/unit/model-registry-service.test.ts` (18 tests passing)
+  - `tests/integration/ai-provider-registry.test.tsx` (9 tests passing)
+  - Total: 235 unit/integration tests passing in Vitest across 38 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 25 routes compiled cleanly).
+- Next: F020 — Secrets management
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 18
+- DONE: 19
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 32
+- PENDING: 31
 
 The agent must update these totals when statuses change.
