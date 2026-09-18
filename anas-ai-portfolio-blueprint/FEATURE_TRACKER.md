@@ -50,7 +50,7 @@ This file is the single progress source of truth.
 | F037 | Evaluation Dashboard | Feature | **DONE** | Public/admin metrics for retrieval/generation quality. |
 | F038 | AI evaluation runner | AI | **DONE** | Dataset-driven regression evaluation. |
 | F039 | Admin content center | Admin | **DONE** | Manage pages, sections, blocks, projects and publishing. |
-| F040 | Admin AI control center | Admin | **PENDING** | Full RAG/model/prompt/API configuration UI. |
+| F040 | Admin AI control center | Admin | **DONE** | Full RAG/model/prompt/API configuration UI. |
 | F041 | Audit log | Admin/Security | **PENDING** | Immutable-style audit events for sensitive changes. |
 | F042 | Feature flags | Ops/Admin | **PENDING** | Controlled rollout of risky features. |
 | F043 | Caching & invalidation | Performance | **PENDING** | Tag/key-based cache strategy with correct invalidation. |
@@ -977,13 +977,32 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 65 static/dynamic routes compiled cleanly).
 - Next: F040 — Admin AI control center
 
+### F040: Admin AI Control Center (DONE)
+- Implemented comprehensive production Admin AI Control Center adhering strictly to `docs/admin/03_AI_CONTROL_CENTER.md`, `docs/admin/01_ADMIN_CONTROL_PLANE.md`, `docs/ai/15_AI_EVALUATION.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/modules/admin/domain/ai-control.ts`: Domain models, subsystem health definitions, capability binding contracts, and `ValidateAiChangeRequestSchema`.
+  - `src/modules/admin/domain/index.ts`: Barrel export.
+  - `src/modules/admin/infrastructure/ai-control-service.ts`: Implemented `AiControlService` aggregating real-time subsystem statuses (Providers, Models, RAG, Prompts, Quality Gate) with 300ms bounded DB calls and baselines, pre-flight change validation (`validateChange`) flagging required reindex workflows (e.g. embedding model switches or chunk size modifications), and immutable audit event logging.
+  - `app/api/admin/ai/control/overview/route.ts`: Admin `GET /api/admin/ai/control/overview` returning consolidated health, active model bindings matrix, and RAG configuration. Guarded by `requireAdmin`.
+  - `app/api/admin/ai/control/validate/route.ts`: Admin `POST /api/admin/ai/control/validate` providing pre-flight change safety validation and recommended gate suites before activating modifications. Guarded by `requireAdmin`.
+  - `src/modules/admin/presentation/ai-control-center.tsx`: Executive AI cockpit with health status cards, active capability binding matrix with inline pre-flight check, embedding compatibility mismatch warning banner, multi-tab integration with Providers & Models, RAG Retrieval Controls, and 1-click golden benchmark regression release gate.
+  - `src/modules/admin/presentation/index.ts`: Re-exported `AiControlCenter` and its prop contracts.
+  - `app/[locale]/admin/ai/page.tsx`: Updated with localized metadata, server-side prefetch with timeout fallbacks, `export const dynamic = "force-dynamic"`, and renders `AiControlCenter`.
+  - Tests:
+    - `tests/unit/ai-control-service.test.ts` (7 tests verifying overview generation, capability bindings, required fields, embedding change reindex safety flags, generation model context checks, chunk overlap constraints, and runtime policy validation)
+    - `tests/integration/ai-control-api.test.ts` (7 tests verifying 401 unauthenticated, 403 non-admin, 200 overview, 400 validation error, and 200 pre-flight validation response)
+    - `tests/integration/ai-control-center-ui.test.tsx` (5 tests verifying F040 badge, 5 subsystem health cards, capability matrix, tab navigation, and Arabic RTL layout)
+- Tests:
+  - Total: 679 unit/integration tests passing in Vitest across 110 test suites (110/110 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 67 static/dynamic routes compiled cleanly in 20.9s).
+- Next: F041 — Audit log
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 39
+- DONE: 40
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 11
+- PENDING: 10
 
 The agent must update these totals when statuses change.
 
