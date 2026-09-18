@@ -20,7 +20,7 @@ This file is the single progress source of truth.
 | F007 | Automatic RTL/LTR system | Frontend | **DONE** | Correct direction across all layouts, content, overlays, forms and chat. |
 | F008 | Light/dark theme | Frontend | **DONE** | System-aware theme plus persistent user/guest override. |
 | F009 | Design system & custom Select | Frontend | **DONE** | Minimal design primitives; all dropdowns styled and accessible. |
-| F010 | Motion system | Frontend | **PENDING** | Subtle reusable animations respecting reduced-motion. |
+| F010 | Motion system | Frontend | **DONE** | Subtle reusable animations respecting reduced-motion. |
 | F011 | Dynamic navigation/footer | Content | **PENDING** | Admin-managed navigation, footer and visibility/order. |
 | F012 | Dynamic section builder | Content | **PENDING** | Admin can create/delete/reorder sections using composable blocks. |
 | F013 | Global admin inline edit mode | Admin | **PENDING** | Edit affordance adjacent to dynamic elements for admins only. |
@@ -280,12 +280,37 @@ This file is the single progress source of truth.
 - Visual aesthetic verified: Restrained, neutral color palette, no neon glow, no multi-color gradient background.
 - Next: F010 — Motion system
 
+### F010: Motion system
+- Feature: F010 — Motion system
+- Status: **DONE**
+- Branch: `feat/f010-motion-system`
+- Commit: `71d2966`
+- Files changed/created:
+  - `src/modules/motion/domain/motion-tokens.ts` (Restrained duration tokens: instant/fast/normal/slow, custom easing curves, reduced-motion overrides for fadeIn, slideUp, staggerContainer, and staggerItem)
+  - `src/modules/motion/presentation/use-reduced-motion-preference.ts` (React 19 `useSyncExternalStore` hook listening to `(prefers-reduced-motion: reduce)`)
+  - `src/modules/motion/presentation/motion-provider.tsx` (Configurable `MotionProvider` context with `isReducedMotion`, `intensity` [none|reduced|normal], and `shouldAnimate`)
+  - `src/components/motion/fade-in.tsx` (Subtle opacity entrance respecting reduced-motion)
+  - `src/components/motion/slide-in.tsx` (Subtle 8px vertical slide entrance with translation removed on reduced-motion)
+  - `src/components/motion/stagger.tsx` (`StaggerContainer` & `StaggerItem` primitives with zero stagger delay on reduced-motion)
+  - `src/components/motion/presence-transition.tsx` (`AnimatePresence` wrapper for conditional exit transitions)
+  - `src/components/motion/index.ts` (Motion components barrel export)
+  - `app/[locale]/layout.tsx` (Mounted `MotionProvider` in root layout)
+  - `app/[locale]/(public)/page.tsx` (Integrated `FadeIn`, `StaggerContainer`, and `StaggerItem` in public homepage)
+  - `tests/unit/motion-tokens.test.ts`
+  - `tests/integration/motion-system.test.tsx`
+- Tests:
+  - `tests/unit/motion-tokens.test.ts` (7 tests verifying durations <= 0.4s, zero delay and linear ease on reduced-motion, and translation suppression)
+  - `tests/integration/motion-system.test.tsx` (7 tests verifying context defaults, overrideIntensity="none", FadeIn, SlideIn, StaggerContainer, StaggerItem, and PresenceTransition)
+  - Total: 116 unit/integration tests passing in Vitest across 22 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
+- Next: F011 — Dynamic navigation/footer
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 9
+- DONE: 10
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 41
+- PENDING: 40
 
 The agent must update these totals when statuses change.
