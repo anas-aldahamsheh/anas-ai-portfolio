@@ -272,4 +272,137 @@ describe("ChatOrchestrator (F031)", () => {
     expect(result.citations).toEqual([]);
     expect(result.answer).toContain("لا تحتوي قاعدة معارف ملف الأعمال");
   });
+
+  it("enforces hard project scope retrieval filter when projectScopeId is provided", async () => {
+    vi.spyOn(languageResolver, "resolveLanguage").mockResolvedValue({
+      language: "en",
+      direction: "ltr",
+      confidence: 1.0,
+      strategy: "script_heuristic",
+      hasExplicitOverride: false,
+      reason: "English",
+    });
+
+    const routeSpy = vi.spyOn(queryRouter, "route").mockResolvedValue({
+      route_id: "project",
+      confidence: 1.0,
+      entity_hints: ["search"],
+      needs_rewrite: false,
+      retrieval_policy_id: "policy-project-scoped",
+    });
+
+    const retrieveSpy = vi.spyOn(hybridRetriever, "retrieve").mockResolvedValue({
+      candidates: [
+        {
+          id: "chunk-p1",
+          documentId: "doc-p1",
+          citationId: "proj_vec:c1",
+          sourceId: "proj-vector-search",
+          sourceType: "project",
+          title: "Vector Search Architecture",
+          locale: "en",
+          content: "Qdrant vector cluster setup with high-throughput indexing.",
+          score: 0.95,
+          headingHierarchy: [],
+          tags: [],
+          retrieverType: "hybrid",
+          rank: 1,
+        },
+      ],
+      telemetry: {
+        denseCandidateCount: 1,
+        sparseCandidateCount: 1,
+        fusedCandidateCount: 1,
+        denseLatencyMs: 2,
+        sparseLatencyMs: 2,
+        fusionLatencyMs: 1,
+        totalLatencyMs: 5,
+      },
+    });
+
+    vi.spyOn(contextBuilder, "buildContext").mockResolvedValue({
+      formattedContext: "context",
+      chunks: [],
+      availableCitations: [],
+      telemetry: {
+        inputCandidatesCount: 1,
+        selectedChunksCount: 1,
+        deduplicatedCount: 0,
+        perSourceCappedCount: 0,
+        budgetExceededCount: 0,
+        totalEstimatedTokens: 20,
+        maxTokenBudget: 3000,
+        uniqueSourcesCount: 1,
+        latencyMs: 1,
+      },
+    });
+
+    const generateSpy = vi.spyOn(groundedGenerator, "generate").mockResolvedValue({
+      content: "Scoped answer [cit:proj_vec:c1]",
+      rawContent: "raw",
+      language: "en",
+      conversationMode: "technical",
+      citations: [
+        {
+          citationId: "proj_vec:c1",
+          sourceId: "proj-vector-search",
+          sourceType: "project",
+          title: "Vector Search Architecture",
+          locale: "en",
+          occurrences: 1,
+        },
+      ],
+      validation: {
+        isValid: true,
+        citedIds: ["proj_vec:c1"],
+        validCitedIds: ["proj_vec:c1"],
+        invalidCitedIds: [],
+        missingRequiredCitations: false,
+        cleanedText: "Scoped answer",
+        citations: [],
+        languageConsistent: true,
+      },
+      hasInsufficientEvidence: false,
+      telemetry: {
+        modelUsed: "heuristic",
+        providerType: "heuristic",
+        promptTokens: 40,
+        completionTokens: 20,
+        totalTokens: 60,
+        latencyMs: 1,
+        citedSourcesCount: 1,
+        hasInsufficientEvidence: false,
+        strategy: "fallback",
+      },
+    });
+
+    const result = await orchestrator.processChat({
+      message: "What vector index did Anas choose?",
+      projectScopeId: "proj-vector-search",
+      projectScopeTitle: "Enterprise Vector Search",
+      conversationMode: "technical",
+    });
+
+    expect(routeSpy).toHaveBeenCalledWith("What vector index did Anas choose?", {
+      forceRouteId: "project",
+    });
+
+    expect(retrieveSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filter: {
+          sourceId: "proj-vector-search",
+          sourceType: "project",
+        },
+      }),
+    );
+
+    expect(generateSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentScope: "Enterprise Vector Search",
+      }),
+    );
+
+    expect(result.telemetry.isScopedRetrieval).toBe(true);
+    expect(result.telemetry.projectScopeId).toBe("proj-vector-search");
+  });
 });

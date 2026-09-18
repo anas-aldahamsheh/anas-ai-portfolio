@@ -43,7 +43,7 @@ This file is the single progress source of truth.
 | F030 | Conversation language matching | AI/Frontend | **DONE** | Assistant replies in user's conversational language. |
 | F031 | Portfolio AI Chat | Feature | **DONE** | Public streaming chatbot with citations. |
 | F032 | Conversation Mode | Feature | **DONE** | General / Recruiter / Technical modes. |
-| F033 | Ask AI About This Project | Feature | **PENDING** | Hard project scope retrieval filter. |
+| F033 | Ask AI About This Project | Feature | **DONE** | Hard project scope retrieval filter. |
 | F034 | Job Fit Analyzer | Feature | **PENDING** | Maps pasted JD requirements to verified portfolio evidence. |
 | F035 | AI Lab | Feature | **PENDING** | Public interactive AI demonstrations configured from admin. |
 | F036 | RAG Debug View | Feature | **PENDING** | Safe retrieval telemetry without chain-of-thought. |
@@ -821,15 +821,30 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 540 unit/integration tests passing in Vitest across 88 test suites (88/88 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 45 static/dynamic routes compiled cleanly).
-- Next: F033 — Ask AI About This Project
+### F033: Ask AI About This Project (DONE)
+- Implemented production project-scoped chat system adhering strictly to `docs/features/12_ASK_AI_PROJECT.md`, `docs/features/03_PORTFOLIO_AI_CHAT.md`, `docs/ai/03_HYBRID_RETRIEVAL.md`, and `docs/frontend/02_BILINGUAL_RTL_LTR.md`:
+  - `src/modules/localization/infrastructure/core-system-keys.ts`: Added bilingual keys (`chat.scope.badge`, `chat.scope.exit`, `chat.scope.all_portfolio`, `chat.scope.prompt.architecture`, `chat.scope.prompt.performance`, `chat.scope.prompt.data_flow`).
+  - `src/ai/contracts/generation.ts`: Added `currentScope?: string | undefined` to `GenerationInput`.
+  - `src/ai/generation/grounded-generator.ts`: Interpolated `current_scope` into prompt variables.
+  - `src/ai/orchestration/chat-orchestrator.ts`: Implemented hard scope retrieval filter (`sourceId = projectScopeId`, `sourceType = "project"`), optional global context fusion, and scope telemetry (`projectScopeId`, `isScopedRetrieval`).
+  - `app/api/chat/route.ts`: Added `projectScopeTitle` and `allowGlobalContext` to `ChatRequestSchema` and forwarded to orchestrator.
+  - `src/modules/chat/presentation/chat-drawer.tsx`: Added `activeScopeId`/`activeScopeTitle` state, `open-project-chat` window custom event listener, prop sync, Scope Badge with `Exit Scope` button, and dynamic project prompt concepts.
+  - `src/modules/projects/presentation/project-deep-dive.tsx`: Connected "Launch AI Project Query" button and suggestion chips with `openProjectChat` dispatching `open-project-chat` event.
+  - Tests:
+    - `tests/unit/chat-orchestrator.test.ts` (3 tests verifying hard retrieval filter and scope telemetry)
+    - `tests/integration/scoped-project-chat.test.tsx` (3 tests verifying scope badge, prompt suggestions, exit scope action, and custom event dispatch)
+- Tests:
+  - Total: 544 unit/integration tests passing in Vitest across 89 test suites (89/89 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 45 static/dynamic routes compiled cleanly).
+- Next: F034 — Job Fit Analyzer
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 32
+- DONE: 33
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 18
+- PENDING: 17
 
 The agent must update these totals when statuses change.
 

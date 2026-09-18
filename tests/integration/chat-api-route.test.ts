@@ -56,6 +56,7 @@ describe("Public Chat API Route (/api/chat)", () => {
         generationLatencyMs: 20,
         totalLatencyMs: 35,
         strategy: "llm",
+        isScopedRetrieval: false,
       },
     });
 
@@ -106,6 +107,7 @@ describe("Public Chat API Route (/api/chat)", () => {
         generationLatencyMs: 10,
         totalLatencyMs: 20,
         strategy: "fallback",
+        isScopedRetrieval: false,
       },
     });
 
