@@ -1,28 +1,29 @@
 # Current State
 
-Last updated: F002 completed.
+Last updated: F003 completed.
 
 ## Current feature
-F003 — Authentication (PENDING).
+F004 — RBAC & admin protection (PENDING).
 
 ## Repository state
-- Branch: `feat/f002-database-migrations`
-- Last commit: `2503c679e1bbba816a35d0bddae94f7e40e80c84`
-- F001 (Foundation) & F002 (Database & migrations) fully completed and verified against Definition of Done.
-- Database architecture: PostgreSQL (Neon compatible) + Drizzle ORM + Drizzle Kit.
-- 50 tables defined in modular schemas under `src/lib/db/schema/` (auth, localization, content, projects, cv, social, ai, evaluation, admin).
-- Migration `drizzle/0000_great_wendell_vaughn.sql` committed.
-- All primary keys use UUIDs (`gen_random_uuid()`), explicit foreign keys with cascade/set null, query indexes, and timestamptz.
-- 20 unit tests passing in Vitest (`env.test.ts`, `logger.test.ts`, `health.test.ts`, `db-schema.test.ts`).
-- Full quality suite passes: format, lint, typecheck, tests, build.
+- Branch: `feat/f003-authentication`
+- Last commit: `712a0a2a1087982d8f7135eb2760826688db7de9`
+- Completed features:
+  - F001: Foundation & repository quality (DONE)
+  - F002: Database & migrations (DONE)
+  - F003: Authentication (DONE)
+- Better Auth setup complete with Drizzle PostgreSQL adapter (`users`, `sessions`, `accounts`, `verifications`).
+- Auth API mounted at `/api/auth/[...all]`.
+- Bilingual auth pages active at `/ar/sign-in`, `/en/sign-in`, `/ar/sign-up`, `/en/sign-up` with guest reassurance banner.
+- 28 unit and integration tests passing in Vitest across 6 test suites.
+- Full verification passed (Prettier, ESLint, TypeScript strict, Vitest, Next.js build).
 
 ## Last successful commands
-- `pnpm db:generate` (generated initial 50-table migration)
 - `pnpm format:check` (passed)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 20/20 unit tests passed)
-- `pnpm build` (passed, Next.js 16.3.5 Turbopack production build)
+- `pnpm test` (passed, 28/28 tests passed)
+- `pnpm build` (passed, all routes compiled cleanly)
 
 ## Database migrations
 - `drizzle/0000_great_wendell_vaughn.sql` (committed)
@@ -31,12 +32,12 @@ F003 — Authentication (PENDING).
 None.
 
 ## Next action
-Begin **F003 — Authentication**:
-1. Implement Better Auth server configuration with Drizzle PostgreSQL adapter using `src/lib/db/schema/auth.ts`.
-2. Implement auth API route handler at `app/api/auth/[...all]/route.ts`.
-3. Create sign-up and sign-in pages under `app/[locale]/(auth)/`.
-4. Implement secure session management, input validation, and password security.
-5. Add unit and integration tests for authentication workflows.
+Begin **F004 — RBAC & admin protection**:
+1. Implement server-side RBAC authorization utilities in `src/modules/auth/application/rbac.ts` and `src/modules/auth/infrastructure/server-auth.ts`.
+2. Define server-side guard `requireAdmin()` and `requireUser()` with deny-by-default policy.
+3. Protect admin layout/routes in `app/[locale]/admin/layout.tsx` and admin APIs in `app/api/admin/`.
+4. Create secure admin bootstrap script in `scripts/bootstrap-admin/`.
+5. Add unit and integration tests for RBAC enforcement and unprivileged user rejection (HTTP 401/403).
 
 ## Important reminders
 - Update this file before ending an agent session.

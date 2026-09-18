@@ -13,7 +13,7 @@ This file is the single progress source of truth.
 |---|---|---|---|---|
 | F001 | Foundation & repository quality | Core | **DONE** | Initialize Next.js, strict TypeScript, lint/format/test/build scripts, env validation and CI baseline. |
 | F002 | Database & migrations | Data | **DONE** | PostgreSQL/Drizzle schema foundation, migration workflow and constraints. |
-| F003 | Authentication | Auth | **PENDING** | Sign-up, sign-in, secure sessions, verification-ready flows. |
+| F003 | Authentication | Auth | **DONE** | Sign-up, sign-in, secure sessions, verification-ready flows. |
 | F004 | RBAC & admin protection | Auth | **PENDING** | USER/ADMIN roles, deny-by-default server authorization. |
 | F005 | Guest-first public access | Core | **PENDING** | Every public portfolio feature works without authentication. |
 | F006 | Dynamic localization registry | Frontend/Data | **PENDING** | Database-backed Arabic/English UI text with no hardcoded portfolio labels. |
@@ -106,12 +106,35 @@ This file is the single progress source of truth.
 - Known limitations: None. Fully meeting Definition of Done.
 - Next: F003 — Authentication
 
+#### F003 — Authentication
+- Status: DONE
+- Commit/PR: `712a0a2a1087982d8f7135eb2760826688db7de9`
+- Main paths:
+  - `src/lib/security/auth.ts`, `src/lib/security/auth-client.ts`
+  - `app/api/auth/[...all]/route.ts`
+  - `src/modules/auth/domain/validation.ts`
+  - `src/modules/auth/presentation/sign-in-form.tsx`, `src/modules/auth/presentation/sign-up-form.tsx`
+  - `app/[locale]/(auth)/sign-in/page.tsx`, `app/[locale]/(auth)/sign-up/page.tsx`
+  - `tests/unit/auth-validation.test.ts`, `tests/integration/auth-endpoints.test.ts`
+- Tests:
+  - `tests/unit/auth-validation.test.ts` (6 tests verifying email, password length, password matching)
+  - `tests/integration/auth-endpoints.test.ts` (2 tests verifying Better Auth server handler and session configuration)
+  - Total: 28 unit/integration tests passing in Vitest
+- Migrations: Utilizing `users`, `sessions`, `accounts`, `verifications`, and `user_roles` from F002 schema
+- Config: Better Auth configured with email/password, cookie caching, secure cookies in production, and Drizzle adapter
+- Manual QA: Tested `/ar/sign-in`, `/en/sign-in`, `/ar/sign-up`, `/en/sign-up` static page compilation; verified guest reassurance banner on both routes
+- Arabic/RTL QA: Forms render with appropriate RTL direction, Arabic labels, and logical spacing
+- English/LTR QA: Forms render with LTR direction and English labels
+- Security notes: Secure HTTP-only cookies in production, minimum 8 character password policy, Zod input validation, server-enforced sessions
+- Known limitations: None. Fully meeting Definition of Done.
+- Next: F004 — RBAC & admin protection
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 2
+- DONE: 3
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 48
+- PENDING: 47
 
 The agent must update these totals when statuses change.
