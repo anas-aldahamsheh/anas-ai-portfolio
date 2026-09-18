@@ -22,7 +22,7 @@ This file is the single progress source of truth.
 | F009 | Design system & custom Select | Frontend | **DONE** | Minimal design primitives; all dropdowns styled and accessible. |
 | F010 | Motion system | Frontend | **DONE** | Subtle reusable animations respecting reduced-motion. |
 | F011 | Dynamic navigation/footer | Content | **DONE** | Admin-managed navigation, footer and visibility/order. |
-| F012 | Dynamic section builder | Content | **PENDING** | Admin can create/delete/reorder sections using composable blocks. |
+| F012 | Dynamic section builder | Content | **DONE** | Admin can create/delete/reorder sections using composable blocks. |
 | F013 | Global admin inline edit mode | Admin | **PENDING** | Edit affordance adjacent to dynamic elements for admins only. |
 | F014 | CV viewer/download/versioning | Feature | **PENDING** | Public CV page, viewer/download, admin upload/publish history. |
 | F015 | GitHub profile popover | Feature | **PENDING** | Dynamic GitHub account card with copy/open actions. |
@@ -329,12 +329,44 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
 - Next: F012 — Dynamic section builder
 
+### F012: Dynamic section builder
+- Feature: F012 — Dynamic section builder
+- Status: **DONE**
+- Branch: `feat/f012-dynamic-section-builder`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/modules/content/domain/blocks.ts` (11 block Zod schemas: heading, rich_text, media, cta, metrics, card_collection, timeline, skill_tags, accordion, code_block, quote)
+  - `src/modules/content/domain/sections.ts` (Section and Page Zod domain schemas and types)
+  - `src/modules/content/infrastructure/default-home-sections.ts` (Default structured baseline page sections)
+  - `src/modules/content/infrastructure/section-service.ts` (Resilient database loader for page sections querying `pages`, `sections`, and `blocks` with in-memory TTL caching and graceful fallback)
+  - `src/modules/content/presentation/blocks/heading-block.tsx`
+  - `src/modules/content/presentation/blocks/rich-text-block.tsx`
+  - `src/modules/content/presentation/blocks/cta-block.tsx`
+  - `src/modules/content/presentation/blocks/metrics-block.tsx`
+  - `src/modules/content/presentation/blocks/card-collection-block.tsx`
+  - `src/modules/content/presentation/blocks/skill-tags-block.tsx`
+  - `src/modules/content/presentation/blocks/code-block.tsx`
+  - `src/modules/content/presentation/blocks/quote-block.tsx`
+  - `src/modules/content/presentation/block-renderer.tsx` (Composable block dispatcher)
+  - `src/modules/content/presentation/section-renderer.tsx` (Section layout and block sequencer)
+  - `src/modules/content/presentation/dynamic-page.tsx` (Dynamic page renderer)
+  - `src/modules/content/presentation/index.ts` (Barrel export)
+  - `app/[locale]/(public)/page.tsx` (Dynamic homepage rendering via `DynamicPage` with 0 hardcoded copy)
+  - `tests/unit/section-builder.test.ts`
+  - `tests/integration/section-builder.test.tsx`
+- Tests:
+  - `tests/unit/section-builder.test.ts` (6 tests verifying block domain schema validation, section schema validation, default home sections integrity, orderIndex ordering, and in-memory cache invalidation)
+  - `tests/integration/section-builder.test.tsx` (2 tests verifying dynamic rendering of heading, rich_text, metrics, cta, card_collection, skill_tags, quote, code_block, visibility filtering, and graceful unknown block handling)
+  - Total: 133 unit/integration tests passing in Vitest across 26 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
+- Next: F013 — Global admin inline edit mode
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 11
+- DONE: 12
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 39
+- PENDING: 38
 
 The agent must update these totals when statuses change.
