@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F028 completed.
+Last updated: F029 completed.
 
 ## Current feature
-F028 — Context builder/dedup/budget (DONE). Next is F029 — Grounded generation & citations.
+F029 — Grounded generation & citations (DONE). Next is F030 — Conversation language matching.
 
 ## Repository state
-- Branch: `feat/f028-context-builder`
+- Branch: `feat/f029-grounded-generation`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -37,22 +37,23 @@ F028 — Context builder/dedup/budget (DONE). Next is F029 — Grounded generati
   - F026: Query Rewriting (DONE)
   - F027: BGE Reranker Adapter (DONE)
   - F028: Context builder/dedup/budget (DONE)
-- Context Builder Architecture implemented:
-  - Contracts (`src/ai/contracts/context-builder.ts`): `ContextInputCandidate`, `CitationReference`, `ContextChunk`, `ContextBuilderOptions`, `ContextBuilderTelemetry`, `ContextBuilderResult`, `ContextBuilderPort`, `ContextBuilderOptionsSchema`, and `ContextBuilderTestInputSchema`.
-  - Deduplicator (`src/ai/context/deduplicator.ts`): `extractTokenShingles`, `computeJaccardSimilarity`, `isNearDuplicate` catching exact hash duplicates and sliding-window / near-identical sentences across English and Arabic.
-  - Token Budgeter (`src/ai/context/token-budgeter.ts`): `estimateTokenCount` with calibrated English and Arabic word/character ratios, and `TokenBudgeter` managing cumulative budget allocations.
-  - Security Delimiters (`src/ai/context/security-delimiters.ts`): `sanitizeContextContent` escaping breakout tags, and `formatRetrievedContext` packaging evidence into XML delimiters `<retrieved_context>` ... `<source id="..." ...>`.
-  - Context Builder Service (`src/ai/context/context-builder.ts`): `ContextBuilder` implementing `ContextBuilderPort`, dynamically querying RAG configuration `contextTokenBudget`, prioritizing reranked scores, enforcing `perSourceCap`, deduplicating overlapping chunks, strictly packing within token limits, and preserving citation references.
-  - Admin Testing API (`app/api/admin/ai/context/test/route.ts`): Admin route for testing context packing.
-  - Test suites: 468 unit and integration tests passing in Vitest across 74 test suites (74/74 passing).
-- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 468/468, Next.js build clean with all 40 static & dynamic routes compiled).
+  - F029: Grounded generation & citations (DONE)
+- Grounded Generation & Citation Architecture implemented:
+  - Contracts (`src/ai/contracts/generation.ts`): `ConversationMode`, `ResponseLanguage`, `CitationMapping`, `CitationValidationResult`, `GroundedGenerationTelemetry`, `GroundedAnswer`, `GenerationOptions`, `GenerationInput`, `GenerationPort`, `CitationValidatorPort`, Zod validation schemas.
+  - Citation Validator (`src/ai/citations/citation-validator.ts`): `stripChainOfThought` removing `<think>` reasoning tokens, `CitationValidator` parsing `[cit:ID]` and `[ID]` patterns against citation catalogs, pruning hallucinated markers, validating language consistency, and mapping verified citations.
+  - Grounding Fallbacks (`src/ai/generation/grounding-fallbacks.ts`): `createInsufficientEvidenceAnswer` providing deterministic bilingual fallback when context chunks are empty with 0 API tokens and <1ms latency, `isInsufficientEvidenceText` detector.
+  - Heuristic Generation Fallback (`src/ai/generation/adapters/heuristic-generation-adapter.ts`): `generateHeuristicAnswer` deterministic offline fallback synthesizer creating factual, cited answers directly from context chunks.
+  - Grounded Generator Service (`src/ai/generation/grounded-generator.ts`): `GroundedGenerator` orchestrator dynamically resolving active generation model assignment from model registry, decrypting API keys from `secretsService`, rendering prompt templates via `promptService`, calling OpenAI-compatible `/chat/completions` endpoints with bounded timeout, falling back seamlessly to offline heuristic generation on network or provider errors, validating citations, and compiling structured telemetry.
+  - Admin Testing API (`app/api/admin/ai/generate/test/route.ts`): Admin route for testing grounded generation.
+  - Test suites: 488 unit and integration tests passing in Vitest across 78 test suites (78/78 passing).
+- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 488/488, Next.js build clean with all 41 static & dynamic routes compiled).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 468/468 tests passed across 74 suites)
-- `pnpm build` (passed, all 40 static SSG and dynamic SSR routes compiled cleanly)
+- `pnpm test` (passed, 488/488 tests passed across 78 suites)
+- `pnpm build` (passed, all 41 static SSG and dynamic SSR routes compiled cleanly)
 
 ## Database migrations
 - `drizzle/0000_great_wendell_vaughn.sql` (committed)
@@ -61,8 +62,8 @@ F028 — Context builder/dedup/budget (DONE). Next is F029 — Grounded generati
 None.
 
 ## Next action
-Begin **F029 — Grounded generation & citations**:
-1. Review `docs/ai/10_GENERATION_AND_CITATIONS.md` and blueprint specs.
-2. Create branch `feat/f029-grounded-generation`.
-3. Define `GenerationPort`, `CitationValidatorPort`, generation options, citation parsing schemas, and grounding fallback when context is insufficient.
+Begin **F030 — Conversation language matching**:
+1. Review `docs/ai/11_LANGUAGE_RESOLUTION.md` and blueprint specs.
+2. Create branch `feat/f030-conversation-language-matching`.
+3. Implement deterministic script heuristic (Arabic vs Latin Unicode detection), conversation locale weak signal, language classifier fallback, and direction matching.
 4. Author unit/integration tests and verify all 5 quality gates.

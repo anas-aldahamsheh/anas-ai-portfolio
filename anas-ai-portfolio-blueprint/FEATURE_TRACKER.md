@@ -39,7 +39,7 @@ This file is the single progress source of truth.
 | F026 | Query Rewriting | AI | **DONE** | Configurable multilingual multi-query rewriting. |
 | F027 | BGE reranker adapter | AI | **DONE** | Default multilingual reranking adapter. |
 | F028 | Context builder/dedup/budget | AI | **DONE** | Deterministic context packing and token budget. |
-| F029 | Grounded generation & citations | AI | **PENDING** | Evidence-bound answers, source mapping and citation validation. |
+| F029 | Grounded generation & citations | AI | **DONE** | Evidence-bound answers, source mapping and citation validation. |
 | F030 | Conversation language matching | AI/Frontend | **PENDING** | Assistant replies in user's conversational language. |
 | F031 | Portfolio AI Chat | Feature | **PENDING** | Public streaming chatbot with citations. |
 | F032 | Conversation Mode | Feature | **PENDING** | General / Recruiter / Technical modes. |
@@ -745,13 +745,34 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 40 static/dynamic routes compiled cleanly).
 - Next: F029 — Grounded generation & citations
 
+### F029: Grounded Generation & Citations (DONE)
+- Implemented production evidence-bound answer generation adhering strictly to `docs/ai/10_GENERATION_AND_CITATIONS.md`, `docs/ai/13_AI_FAILURES_FALLBACKS.md`, and `docs/ai/14_PROMPT_INJECTION_AND_RAG_SECURITY.md`:
+  - `src/ai/contracts/generation.ts` (`ConversationMode`, `ResponseLanguage`, `CitationMapping`, `CitationValidationResult`, `GroundedGenerationTelemetry`, `GroundedAnswer`, `GenerationOptions`, `GenerationInput`, `GenerationPort`, `CitationValidatorPort`, Zod validation schemas)
+  - `src/ai/contracts/index.ts` (Re-exported generation contracts)
+  - `src/ai/citations/citation-validator.ts` (`stripChainOfThought` removing `<think>` reasoning tokens, `CitationValidator` parsing `[cit:ID]` and `[ID]` patterns against citation catalogs, pruning hallucinated markers, validating language consistency, and mapping verified citations)
+  - `src/ai/citations/index.ts` (Unified citations module export)
+  - `src/ai/generation/grounding-fallbacks.ts` (`createInsufficientEvidenceAnswer` providing deterministic bilingual fallback when context chunks are empty with 0 API tokens and <1ms latency, `isInsufficientEvidenceText` detector)
+  - `src/ai/generation/adapters/heuristic-generation-adapter.ts` (`generateHeuristicAnswer` deterministic offline fallback synthesizer creating factual, cited answers directly from context chunks)
+  - `src/ai/generation/grounded-generator.ts` (`GroundedGenerator` orchestrator dynamically resolving active generation model assignment from model registry, decrypting API keys from `secretsService`, rendering prompt templates via `promptService`, calling OpenAI-compatible `/chat/completions` endpoints with bounded timeout, falling back seamlessly to offline heuristic generation on network or provider errors, validating citations, and compiling structured telemetry)
+  - `src/ai/generation/index.ts` (Unified generation module export)
+  - `app/api/admin/ai/generate/test/route.ts` (Admin-authenticated testing endpoint for grounded generation and citation validation)
+  - Tests:
+    - `tests/unit/citation-validator.test.ts` (8 tests)
+    - `tests/unit/grounding-fallbacks.test.ts` (3 tests)
+    - `tests/unit/grounded-generator.test.ts` (5 tests)
+    - `tests/integration/admin-generate-test-route.test.ts` (4 tests)
+- Tests:
+  - Total: 488 unit/integration tests passing in Vitest across 78 test suites (78/78 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 41 static/dynamic routes compiled cleanly).
+- Next: F030 — Conversation language matching
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 28
+- DONE: 29
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 22
+- PENDING: 21
 
 The agent must update these totals when statuses change.
 
