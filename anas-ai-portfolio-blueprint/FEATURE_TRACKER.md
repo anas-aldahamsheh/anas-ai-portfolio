@@ -52,8 +52,8 @@ This file is the single progress source of truth.
 | F039 | Admin content center | Admin | **DONE** | Manage pages, sections, blocks, projects and publishing. |
 | F040 | Admin AI control center | Admin | **DONE** | Full RAG/model/prompt/API configuration UI. |
 | F041 | Audit log | Admin/Security | **DONE** | Immutable-style audit events for sensitive changes. |
-| F042 | Feature flags | Ops/Admin | **PENDING** | Controlled rollout of risky features. |
-| F043 | Caching & invalidation | Performance | **PENDING** | Tag/key-based cache strategy with correct invalidation. |
+| F042 | Feature flags | Ops/Admin | **DONE** | Controlled rollout of risky features. |
+| F043 | Caching & invalidation | Performance | **DONE** | Tag/key-based cache strategy with correct invalidation. |
 | F044 | Rate limiting & abuse protection | Security | **PENDING** | Chat/auth/job-fit/admin rate limits. |
 | F045 | Observability | Ops | **PENDING** | Structured logs, request IDs, metrics, tracing, errors. |
 | F046 | Health/readiness endpoints | Ops | **PENDING** | Operational health checks without leaking secrets. |
@@ -1034,15 +1034,33 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 718 unit/integration tests passing in Vitest across 116 test suites (116/116 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 75 static/dynamic routes compiled cleanly).
-- Next: F043 — Caching & Invalidation
+### F043: Caching & Invalidation (DONE)
+- Implemented production-grade tag-based multi-tier caching system with instant invalidation, Next.js revalidation bridge, and administrative controls adhering strictly to `docs/admin/01_ADMIN_CONTROL_PLANE.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/lib/cache/cache-types.ts`: Domain contracts (`CacheEntry`, `CacheStats`, `CacheKeySummary`, `SystemCacheTag`, `InvalidateCacheSchema`).
+  - `src/lib/cache/cache-service.ts`: Implemented `CacheService` with high-performance in-memory cache, O(1) tag-to-keys reverse index (`tagIndex`), TTL expiration cleanup, `getOrSet` atomic pattern, tag-based purge (`invalidateTag` / `invalidateTags`), complete flush (`clear`), and `revalidateCacheTag` Next.js bridge.
+  - `src/lib/cache/index.ts`: Barrel export.
+  - `app/api/admin/cache/route.ts`: Admin `GET /api/admin/cache` returning stats, tag distribution, and active keys; `POST /api/admin/cache` for selective tag or key invalidation with immutable audit logging to `auditEvents`. Guarded by `requireAdmin`.
+  - `app/api/admin/cache/flush/route.ts`: Admin `POST /api/admin/cache/flush` for instantaneous total cache purge with audit logging. Guarded by `requireAdmin`.
+  - `src/modules/admin/presentation/cache-manager.tsx`: Executive cache cockpit with 5 KPI cards (Total Keys, Hit Rate %, Total Hits, Cache Misses, Active Tags), 9 architectural tag purge cards (`content`, `projects`, `cv`, `ai`, `prompts`, `rag`, `social`, `feature_flags`, `eval`), instant purge actions, danger-zone Flush All Caches button with confirmation, and live searchable keys table with remaining TTL. Full Arabic RTL and English LTR support.
+  - `src/modules/admin/presentation/index.ts`: Re-exported `CacheManager`.
+  - `app/[locale]/admin/cache/page.tsx`: Production route with localized metadata, server-side prefetch, `export const dynamic = "force-dynamic"`, and renders `CacheManager`.
+  - `app/[locale]/admin/layout.tsx`: Sidebar navigation link for Cache & Invalidation (`/admin/cache`).
+  - Tests:
+    - `tests/unit/cache-service.test.ts` (9 tests verifying storage, misses, TTL expiration, getOrSet caching, tag invalidation, multi-tag invalidation, clear, hit rate statistics, and search/tag filtering)
+    - `tests/integration/cache-api.test.ts` (8 tests verifying 401 unauthenticated, 403 non-admin, 200 admin stats, 400 validation error, 200 tag invalidation, and 200 flush all cache)
+    - `tests/integration/cache-ui.test.tsx` (4 tests verifying F043 badge, KPI cards, tag cards, keys table with TTL, and Arabic RTL layout)
+- Tests:
+  - Total: 739 unit/integration tests passing in Vitest across 119 test suites (119/119 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 79 static/dynamic routes compiled cleanly in 14.1s).
+- Next: F044 — Rate limiting & abuse protection
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 42
+- DONE: 43
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 8
+- PENDING: 7
 
 The agent must update these totals when statuses change.
 
