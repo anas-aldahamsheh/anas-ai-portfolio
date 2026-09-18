@@ -54,7 +54,7 @@ This file is the single progress source of truth.
 | F041 | Audit log | Admin/Security | **DONE** | Immutable-style audit events for sensitive changes. |
 | F042 | Feature flags | Ops/Admin | **DONE** | Controlled rollout of risky features. |
 | F043 | Caching & invalidation | Performance | **DONE** | Tag/key-based cache strategy with correct invalidation. |
-| F044 | Rate limiting & abuse protection | Security | **PENDING** | Chat/auth/job-fit/admin rate limits. |
+| F044 | Rate limiting & abuse protection | Security | **DONE** | Chat/auth/job-fit/admin rate limits. |
 | F045 | Observability | Ops | **PENDING** | Structured logs, request IDs, metrics, tracing, errors. |
 | F046 | Health/readiness endpoints | Ops | **PENDING** | Operational health checks without leaking secrets. |
 | F047 | Accessibility compliance | Frontend/QA | **PENDING** | Keyboard, focus, semantics, screen-reader, contrast, Axe. |
@@ -1052,15 +1052,27 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 739 unit/integration tests passing in Vitest across 119 test suites (119/119 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 79 static/dynamic routes compiled cleanly in 14.1s).
-- Next: F044 — Rate limiting & abuse protection
+### F044: Rate Limiting & Abuse Protection (DONE)
+- Implemented production sliding-window rate limiter, rapid burst abuse cooldown detection, and multi-tier protection across chat, job-fit, lab, auth, and admin endpoints adhering strictly to `docs/admin/01_ADMIN_CONTROL_PLANE.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/lib/security/rate-limiter.ts`: `RateLimiter` class and `RATE_LIMIT_RULES` configuring tiered limits (`chat`: 20 RPM with burst protection, `job_fit`: 10 RPM, `ai_lab`: 30 RPM, `auth`: 5 per 15 min brute-force shield, `admin`: 120 RPM, `public`: 60 RPM). Client identifier resolver extracting `x-user-id`, `x-forwarded-for` (client IP), `x-real-ip`, or `cf-connecting-ip`. Injects standard headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and `Retry-After`.
+  - `app/api/chat/route.ts`: Integrated `applyRateLimit(request, "chat")` returning 429 Too Many Requests when quota is exhausted.
+  - `app/api/job-fit/route.ts`: Integrated `applyRateLimit(request, "job_fit")` and attached rate limit headers to responses.
+  - `app/api/admin/rate-limits/route.ts`: Admin route `GET /api/admin/rate-limits` returning active tier rules and currently throttled/blocked clients; `POST /api/admin/rate-limits` allowing selective or global rate limit resets with audit logging to `auditEvents`. Guarded by `requireAdmin`.
+  - Tests:
+    - `tests/unit/rate-limiter.test.ts` (5 tests verifying initial quota decrements, limit exhaustion, burst abuse cooldown detection, client identifier resolution from proxy headers, and explicit reset)
+    - `tests/integration/rate-limit-api.test.ts` (5 tests verifying 401 unauthenticated, 403 non-admin, 200 admin rules listing, admin reset endpoint, and 429 enforcement with rate limit headers on `/api/job-fit`)
+- Tests:
+  - Total: 749 unit/integration tests passing in Vitest across 121 test suites (121/121 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 80 static/dynamic routes compiled cleanly in 19.3s).
+- Next: F045 — Observability
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 43
+- DONE: 44
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 7
+- PENDING: 6
 
 The agent must update these totals when statuses change.
 
