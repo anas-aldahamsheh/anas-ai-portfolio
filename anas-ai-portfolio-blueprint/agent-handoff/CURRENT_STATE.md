@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F027 completed.
+Last updated: F028 completed.
 
 ## Current feature
-F027 — BGE Reranker Adapter (DONE). Next is F028 — Context builder/dedup/budget.
+F028 — Context builder/dedup/budget (DONE). Next is F029 — Grounded generation & citations.
 
 ## Repository state
-- Branch: `feat/f027-bge-reranker-adapter`
+- Branch: `feat/f028-context-builder`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -36,22 +36,23 @@ F027 — BGE Reranker Adapter (DONE). Next is F028 — Context builder/dedup/bud
   - F025: Query Router (DONE)
   - F026: Query Rewriting (DONE)
   - F027: BGE Reranker Adapter (DONE)
-- BGE Reranker Architecture implemented:
-  - Contracts (`src/ai/contracts/reranker.ts`): `RerankFallbackPolicy`, `ScoreCalibrationMethod`, `RerankCandidate`, `RerankedCandidate`, `RerankOptions`, `RerankTelemetry`, `RerankResult`, `RerankerPort`, `RerankCandidateInputSchema`, and `RerankTestInputSchema`.
-  - Heuristic Reranker (`src/ai/reranker/heuristic-reranker.ts`): Deterministic bilingual lexical scoring, token overlap calculation, heading/title match bonuses, exact phrase boost, and candidate threshold filtering.
-  - BGE Reranker Adapter (`src/ai/reranker/bge-reranker-adapter.ts`): Cross-encoder reranker supporting TEI, OpenAI/Cohere-compatible, and Hugging Face inference endpoints, Sigmoid calibration, top-N truncation, and configurable fallback policies (`degrade_to_fused_ordering` or `fail_safely`).
-  - Reranker Factory (`src/ai/reranker/factory.ts`): `getActiveRerankerAdapter` with model registry integration and decrypted secrets.
-  - Admin Testing API (`app/api/admin/ai/rerank/test/route.ts`): Admin route for testing cross-encoder reranking.
-  - Interactive Admin UI (`src/modules/admin/presentation/rag-pipeline-manager.tsx`): BGE Reranker card integrated into Hybrid Retrieval Playground with rank migrations and telemetry.
-  - Test suites: 446 unit and integration tests passing in Vitest across 69 test suites (69/69 passing).
-- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 446/446, Next.js build clean with all 39 static & dynamic routes compiled).
+  - F028: Context builder/dedup/budget (DONE)
+- Context Builder Architecture implemented:
+  - Contracts (`src/ai/contracts/context-builder.ts`): `ContextInputCandidate`, `CitationReference`, `ContextChunk`, `ContextBuilderOptions`, `ContextBuilderTelemetry`, `ContextBuilderResult`, `ContextBuilderPort`, `ContextBuilderOptionsSchema`, and `ContextBuilderTestInputSchema`.
+  - Deduplicator (`src/ai/context/deduplicator.ts`): `extractTokenShingles`, `computeJaccardSimilarity`, `isNearDuplicate` catching exact hash duplicates and sliding-window / near-identical sentences across English and Arabic.
+  - Token Budgeter (`src/ai/context/token-budgeter.ts`): `estimateTokenCount` with calibrated English and Arabic word/character ratios, and `TokenBudgeter` managing cumulative budget allocations.
+  - Security Delimiters (`src/ai/context/security-delimiters.ts`): `sanitizeContextContent` escaping breakout tags, and `formatRetrievedContext` packaging evidence into XML delimiters `<retrieved_context>` ... `<source id="..." ...>`.
+  - Context Builder Service (`src/ai/context/context-builder.ts`): `ContextBuilder` implementing `ContextBuilderPort`, dynamically querying RAG configuration `contextTokenBudget`, prioritizing reranked scores, enforcing `perSourceCap`, deduplicating overlapping chunks, strictly packing within token limits, and preserving citation references.
+  - Admin Testing API (`app/api/admin/ai/context/test/route.ts`): Admin route for testing context packing.
+  - Test suites: 468 unit and integration tests passing in Vitest across 74 test suites (74/74 passing).
+- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 468/468, Next.js build clean with all 40 static & dynamic routes compiled).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 446/446 tests passed across 69 suites)
-- `pnpm build` (passed, all 39 static SSG and dynamic SSR routes compiled cleanly)
+- `pnpm test` (passed, 468/468 tests passed across 74 suites)
+- `pnpm build` (passed, all 40 static SSG and dynamic SSR routes compiled cleanly)
 
 ## Database migrations
 - `drizzle/0000_great_wendell_vaughn.sql` (committed)
@@ -60,8 +61,8 @@ F027 — BGE Reranker Adapter (DONE). Next is F028 — Context builder/dedup/bud
 None.
 
 ## Next action
-Begin **F028 — Context builder/dedup/budget**:
-1. Review `docs/ai/09_CONTEXT_BUILDER.md` and blueprint specs.
-2. Create branch `feat/f028-context-builder`.
-3. Define `ContextBuilderPort`, context tokens budgeting, deduplication strategy (SHA-256 and lexical/semantic similarity), per-source capping, and deterministic markdown context packing.
+Begin **F029 — Grounded generation & citations**:
+1. Review `docs/ai/10_GENERATION_AND_CITATIONS.md` and blueprint specs.
+2. Create branch `feat/f029-grounded-generation`.
+3. Define `GenerationPort`, `CitationValidatorPort`, generation options, citation parsing schemas, and grounding fallback when context is insufficient.
 4. Author unit/integration tests and verify all 5 quality gates.

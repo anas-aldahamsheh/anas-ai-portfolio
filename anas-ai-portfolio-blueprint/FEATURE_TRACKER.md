@@ -38,7 +38,7 @@ This file is the single progress source of truth.
 | F025 | Query Router | AI | **DONE** | Route intent/scope to relevant retrieval policy. |
 | F026 | Query Rewriting | AI | **DONE** | Configurable multilingual multi-query rewriting. |
 | F027 | BGE reranker adapter | AI | **DONE** | Default multilingual reranking adapter. |
-| F028 | Context builder/dedup/budget | AI | **PENDING** | Deterministic context packing and token budget. |
+| F028 | Context builder/dedup/budget | AI | **DONE** | Deterministic context packing and token budget. |
 | F029 | Grounded generation & citations | AI | **PENDING** | Evidence-bound answers, source mapping and citation validation. |
 | F030 | Conversation language matching | AI/Frontend | **PENDING** | Assistant replies in user's conversational language. |
 | F031 | Portfolio AI Chat | Feature | **PENDING** | Public streaming chatbot with citations. |
@@ -724,13 +724,34 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 39 static/dynamic routes compiled cleanly).
 - Next: F028 — Context builder/dedup/budget
 
+### F028: Context Builder, Deduplication & Budgeting (DONE)
+- Implemented production deterministic context builder adhering strictly to `docs/ai/09_CONTEXT_BUILDER.md`, `docs/ai/14_PROMPT_INJECTION_AND_RAG_SECURITY.md`, and `docs/ai/16_RAG_CONFIGURATION_SCHEMA.md`:
+  - `src/ai/contracts/context-builder.ts` (`ContextInputCandidate`, `CitationReference`, `ContextChunk`, `ContextBuilderOptions`, `ContextBuilderTelemetry`, `ContextBuilderResult`, `ContextBuilderPort`, `ContextBuilderOptionsSchema`, `ContextBuilderTestInputSchema`)
+  - `src/ai/contracts/index.ts` (Re-exported context-builder contracts)
+  - `src/ai/context/deduplicator.ts` (`extractTokenShingles`, `computeJaccardSimilarity`, `isNearDuplicate` catching exact hash duplicates and sliding-window / near-identical sentences across English and Arabic)
+  - `src/ai/context/token-budgeter.ts` (`estimateTokenCount` with calibrated English and Arabic word/character ratios, and `TokenBudgeter` managing cumulative budget allocations)
+  - `src/ai/context/security-delimiters.ts` (`sanitizeContextContent` escaping breakout tags, and `formatRetrievedContext` packaging evidence into XML delimiters `<retrieved_context>` ... `<source id="..." ...>`)
+  - `src/ai/context/context-builder.ts` (`ContextBuilder` implementing `ContextBuilderPort`, dynamically querying RAG configuration `contextTokenBudget`, prioritizing reranked scores, enforcing `perSourceCap`, deduplicating overlapping chunks, strictly packing within token limits, and preserving citation references)
+  - `src/ai/context/index.ts` (Unified context module export)
+  - `app/api/admin/ai/context/test/route.ts` (Admin-authenticated testing endpoint for context packing)
+  - Tests:
+    - `tests/unit/deduplicator.test.ts` (5 tests)
+    - `tests/unit/token-budgeter.test.ts` (4 tests)
+    - `tests/unit/security-delimiters.test.ts` (3 tests)
+    - `tests/unit/context-builder.test.ts` (6 tests)
+    - `tests/integration/admin-context-test-route.test.ts` (4 tests)
+- Tests:
+  - Total: 468 unit/integration tests passing in Vitest across 74 test suites (74/74 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 40 static/dynamic routes compiled cleanly).
+- Next: F029 — Grounded generation & citations
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 27
+- DONE: 28
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 23
+- PENDING: 22
 
 The agent must update these totals when statuses change.
 
