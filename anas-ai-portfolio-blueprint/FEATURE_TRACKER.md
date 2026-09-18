@@ -41,7 +41,7 @@ This file is the single progress source of truth.
 | F028 | Context builder/dedup/budget | AI | **DONE** | Deterministic context packing and token budget. |
 | F029 | Grounded generation & citations | AI | **DONE** | Evidence-bound answers, source mapping and citation validation. |
 | F030 | Conversation language matching | AI/Frontend | **DONE** | Assistant replies in user's conversational language. |
-| F031 | Portfolio AI Chat | Feature | **PENDING** | Public streaming chatbot with citations. |
+| F031 | Portfolio AI Chat | Feature | **DONE** | Public streaming chatbot with citations. |
 | F032 | Conversation Mode | Feature | **PENDING** | General / Recruiter / Technical modes. |
 | F033 | Ask AI About This Project | Feature | **PENDING** | Hard project scope retrieval filter. |
 | F034 | Job Fit Analyzer | Feature | **PENDING** | Maps pasted JD requirements to verified portfolio evidence. |
@@ -782,15 +782,33 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 506 unit/integration tests passing in Vitest across 81 test suites (81/81 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 42 static/dynamic routes compiled cleanly).
-- Next: F031 — Portfolio AI Chat
+### F031: Portfolio AI Chat (DONE)
+- Implemented production public portfolio AI chat adhering strictly to `docs/features/03_PORTFOLIO_AI_CHAT.md`, `docs/ai/10_GENERATION_AND_CITATIONS.md`, `docs/ai/11_LANGUAGE_RESOLUTION.md`, `docs/frontend/02_BILINGUAL_RTL_LTR.md`, and `docs/frontend/03_DESIGN_SYSTEM_AND_THEMING.md`:
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Added 24 localized chat keys covering trigger labels, title, modes, suggested prompt chips, empty states, input placeholders, send/stop actions, disclaimer, and insufficient evidence)
+  - `src/ai/orchestration/chat-orchestrator.ts` (`ChatOrchestrator` coordinating language resolution -> query router -> query rewriting -> hybrid retrieval -> cross-encoder reranking -> context builder -> grounded generation)
+  - `app/api/chat/route.ts` (Public `POST /api/chat` supporting both SSE streaming `text/event-stream` with chunk-by-chunk deltas + terminal metadata event, and JSON completions)
+  - `src/modules/chat/presentation/chat-citation-badge.tsx` (Interactive citation pill with click-to-view popover displaying title, source type, section hierarchy, and link to project/CV)
+  - `src/modules/chat/presentation/chat-message.tsx` (Chat bubble rendering markdown, LTR-enforced code blocks, and interactive citation badges)
+  - `src/modules/chat/presentation/chat-drawer.tsx` (Floating trigger button, slide-over drawer modal dialog, conversation mode tabs [General, Recruiter, Technical], empty state with suggested prompt chips, message thread with auto-scroll, error state with retry, and streaming SSE consumer)
+  - `src/modules/chat/presentation/index.ts` (Unified chat presentation barrel export)
+  - `app/[locale]/(public)/layout.tsx` (Mounted `<ChatDrawer />` in public layout inside `LocalizationProvider`)
+  - Tests:
+    - `tests/unit/chat-orchestrator.test.ts` (2 tests)
+    - `tests/unit/chat-citation-badge.test.tsx` (3 tests)
+    - `tests/integration/chat-api-route.test.ts` (3 tests)
+    - `tests/integration/chat-drawer.test.tsx` (5 tests)
+- Tests:
+  - Total: 519 unit/integration tests passing in Vitest across 85 test suites (85/85 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 43 static/dynamic routes compiled cleanly).
+- Next: F032 — Conversation Mode
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 30
+- DONE: 31
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 20
+- PENDING: 19
 
 The agent must update these totals when statuses change.
 
