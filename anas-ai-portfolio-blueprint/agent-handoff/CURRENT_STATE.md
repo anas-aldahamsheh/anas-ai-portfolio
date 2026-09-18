@@ -1,31 +1,32 @@
 # Current State
 
-Last updated: F005 completed.
+Last updated: F006 completed.
 
 ## Current feature
-F005 — Guest-first public access (DONE).
-Next: F006 — Dynamic localization registry (PENDING).
+F006 — Dynamic localization registry (DONE).
+Next: F007 — Automatic RTL/LTR system (PENDING).
 
 ## Repository state
-- Branch: `feat/f005-guest-first-public-access`
-- Last commit: `afbba11`
+- Branch: `feat/f006-dynamic-localization-registry`
+- Last commit: `de8aa8c`
 - Completed features:
   - F001: Foundation & repository quality (DONE)
   - F002: Database & migrations (DONE)
   - F003: Authentication (DONE)
   - F004: RBAC & admin protection (DONE)
   - F005: Guest-first public access (DONE)
-- Guest-first access policy implemented in `src/modules/auth/domain/access-policy.ts` covering 12 public capabilities per `01_GUEST_ACCESS.md` and `MASTER_BUILD_SPEC.md` Section 3.
-- Request context resolver in `src/modules/auth/infrastructure/request-context.ts` guarantees zero database shadow accounts or fingerprinting cookies for guests.
-- Bilingual guest reassurance banner in `src/modules/auth/presentation/guest-reassurance-badge.tsx` and public landing page with capabilities grid in `app/[locale]/(public)/page.tsx`.
-- 49 unit and integration tests passing in Vitest across 11 test suites.
+  - F006: Dynamic localization registry (DONE)
+- Dynamic localization registry implemented with database-backed `LocalizedTextService`, in-memory TTL caching, fallback resolution, structured missing key logging, and completeness auditing.
+- Server-side `getTranslations(locale)` and client-side `LocalizationProvider` / `useTranslation()` active with parameter interpolation.
+- Core system UI keys dictionary in `src/modules/localization/infrastructure/core-system-keys.ts` with zero hardcoded user-facing strings in public pages.
+- 63 unit and integration tests passing in Vitest across 14 test suites.
 - Full verification passed (Prettier, ESLint, TypeScript strict, Vitest, Next.js build).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 49/49 tests passed)
+- `pnpm test` (passed, 63/63 tests passed)
 - `pnpm build` (passed, all static SSG and dynamic routes compiled cleanly)
 
 ## Database migrations
@@ -35,15 +36,17 @@ Next: F006 — Dynamic localization registry (PENDING).
 None.
 
 ## Next action
-Begin **F006 — Dynamic localization registry**:
-1. Review `docs/features/18_NO_STATIC_CONTENT_POLICY.md` and database schema for `locales`, `ui_text_keys`, and `ui_text_translations`.
-2. Implement server-side localization service in `src/modules/localization/infrastructure/` with database-backed dictionary fetching, in-memory caching, and fallback logic.
-3. Build bilingual UI translation hook / server translation helper `t(key, locale)` ensuring zero hardcoded user-facing portfolio strings.
-4. Add comprehensive unit and integration tests for dictionary loading, fallback resolution, and missing key handling.
+Begin **F007 — Automatic RTL/LTR system**:
+1. Review `docs/frontend/02_BILINGUAL_RTL_LTR.md` and `NON_NEGOTIABLES.md` Rules 3-7.
+2. Implement bidirectional CSS utilities and layout structure ensuring proper logical properties (`margin-inline`, `padding-inline`, `inset-inline`, `text-align: start/end`).
+3. Build directional icon adapter ensuring asymmetrical directional icons (arrows, chevrons) flip in RTL while universal icons (play, external link, branding) remain unflipped.
+4. Support mixed content direction (`dir="auto"`) for user input, code blocks, URLs, and AI chat.
+5. Add unit and visual tests for bidirectional rendering and overlay portals.
 
 ## Important reminders
 - Update this file before ending an agent session.
 - Update `FEATURE_TRACKER.md`.
 - Never claim DONE without tests meeting Definition of Done.
+
 
 

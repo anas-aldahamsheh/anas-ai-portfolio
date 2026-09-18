@@ -16,7 +16,7 @@ This file is the single progress source of truth.
 | F003 | Authentication | Auth | **DONE** | Sign-up, sign-in, secure sessions, verification-ready flows. |
 | F004 | RBAC & admin protection | Auth | **DONE** | USER/ADMIN roles, deny-by-default server authorization. |
 | F005 | Guest-first public access | Core | **DONE** | Every public portfolio feature works without authentication. |
-| F006 | Dynamic localization registry | Frontend/Data | **PENDING** | Database-backed Arabic/English UI text with no hardcoded portfolio labels. |
+| F006 | Dynamic localization registry | Frontend/Data | **DONE** | Database-backed Arabic/English UI text with no hardcoded portfolio labels. |
 | F007 | Automatic RTL/LTR system | Frontend | **PENDING** | Correct direction across all layouts, content, overlays, forms and chat. |
 | F008 | Light/dark theme | Frontend | **PENDING** | System-aware theme plus persistent user/guest override. |
 | F009 | Design system & custom Select | Frontend | **PENDING** | Minimal design primitives; all dropdowns styled and accessible. |
@@ -176,12 +176,38 @@ This file is the single progress source of truth.
 - Known limitations: None. Fully meeting Definition of Done.
 - Next: F006 — Dynamic localization registry
 
+#### F006 — Dynamic localization registry
+- Status: DONE
+- Commit/PR: `de8aa8c`
+- Main paths:
+  - `src/modules/localization/domain/locales.ts` (Arabic/English locales, RTL/LTR mappings, validation)
+  - `src/modules/localization/domain/types.ts` (TranslationDictionary, CompletenessReport, TranslationParams)
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Dynamic core system keys dictionary)
+  - `src/modules/localization/infrastructure/localized-text-service.ts` (Database-backed LocalizedTextService, in-memory cache, fallback resolution, missing key logging, completeness auditing)
+  - `src/modules/localization/application/get-translations.ts` (Server-side translation helper with parameter interpolation)
+  - `src/modules/localization/presentation/localization-provider.tsx` (Client-side React translation context & hook)
+  - `app/[locale]/(public)/page.tsx` (Updated to resolve all user-facing copy purely through dynamic translations)
+  - `tests/unit/localization-domain.test.ts`, `tests/unit/localized-text-service.test.ts`, `tests/integration/dynamic-localization.test.ts`
+- Tests:
+  - `tests/unit/localization-domain.test.ts` (5 tests verifying locale definitions, direction mapping, and param interpolation)
+  - `tests/unit/localized-text-service.test.ts` (5 tests verifying dictionary retrieval, key resolution, caching, missing key error logging, and completeness reporting)
+  - `tests/integration/dynamic-localization.test.ts` (4 tests verifying server-side getTranslations for Arabic and English, RTL/LTR resolution, and safe fallback handling)
+  - Total: 63 unit/integration tests passing in Vitest across 14 test suites
+- Migrations: Uses existing `locales`, `ui_text_keys`, and `ui_text_translations` tables from F002
+- Config: Strictly zero static content in code; fallback occurs only if database translation exists in secondary locale; missing keys log structured errors
+- Manual QA: Tested `/ar` and `/en` SSR compilation with dynamic dictionary lookup; verified proper RTL/LTR text orientation
+- Arabic/RTL QA: Arabic copy renders with `dir="rtl"`, correct fonts and logical start alignment
+- English/LTR QA: English copy renders with `dir="ltr"` and clean typography
+- Security notes: Parameter interpolation safely handles variable substitution without evaluating arbitrary code; structured logger redacts sensitive values
+- Known limitations: None. Fully meeting Definition of Done.
+- Next: F007 — Automatic RTL/LTR system
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 5
+- DONE: 6
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 45
+- PENDING: 44
 
 The agent must update these totals when statuses change.
