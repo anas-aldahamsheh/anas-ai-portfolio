@@ -37,7 +37,7 @@ This file is the single progress source of truth.
 | F024 | Hybrid retrieval | AI | **DONE** | Dense + sparse retrieval, metadata filtering and fusion. |
 | F025 | Query Router | AI | **DONE** | Route intent/scope to relevant retrieval policy. |
 | F026 | Query Rewriting | AI | **DONE** | Configurable multilingual multi-query rewriting. |
-| F027 | BGE reranker adapter | AI | **PENDING** | Default multilingual reranking adapter. |
+| F027 | BGE reranker adapter | AI | **DONE** | Default multilingual reranking adapter. |
 | F028 | Context builder/dedup/budget | AI | **PENDING** | Deterministic context packing and token budget. |
 | F029 | Grounded generation & citations | AI | **PENDING** | Evidence-bound answers, source mapping and citation validation. |
 | F030 | Conversation language matching | AI/Frontend | **PENDING** | Assistant replies in user's conversational language. |
@@ -704,13 +704,33 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 38 static/dynamic routes compiled cleanly).
 - Next: F027 — BGE reranker adapter
 
+### F027: BGE Reranker Adapter (DONE)
+- Implemented production multilingual cross-encoder reranking adhering strictly to `docs/ai/08_RERANKER_BGE_V2_M3.md`:
+  - `src/ai/contracts/reranker.ts` (`RerankFallbackPolicy`, `ScoreCalibrationMethod`, `RerankCandidate`, `RerankedCandidate`, `RerankOptions`, `RerankTelemetry`, `RerankResult`, `RerankerPort`, `RerankCandidateInputSchema`, `RerankTestInputSchema`)
+  - `src/ai/contracts/index.ts` (Re-exported reranker contracts)
+  - `src/ai/reranker/heuristic-reranker.ts` (`HeuristicReranker` providing fast deterministic bilingual lexical scoring, token overlap calculation, heading/title match bonuses, exact phrase boost, and candidate threshold filtering)
+  - `src/ai/reranker/bge-reranker-adapter.ts` (`BgeRerankerAdapter` implementing `RerankerPort` with default model `BAAI/bge-reranker-v2-m3`, supporting HuggingFace TEI endpoints, OpenAI/Cohere-compatible `/v1/rerank` endpoints, and HuggingFace Inference API, Sigmoid logit calibration mapping cross-entropy logits to $[0.0, 1.0]$, top-N filtering, minThreshold pruning, exponential backoff retries, and configurable fallback policies: `degrade_to_fused_ordering` or `fail_safely`)
+  - `src/ai/reranker/factory.ts` (`getActiveRerankerAdapter` dynamically querying active model assignment for `capability: "reranking"`, matching provider configuration, decrypting API key from `secretsService`, and applying runtime policy timeouts/retries with zero-crash fallback)
+  - `src/ai/reranker/index.ts` (Unified reranker module index)
+  - `app/api/admin/ai/rerank/test/route.ts` (Admin-authenticated testing endpoint for cross-encoder reranking)
+  - `src/modules/admin/presentation/rag-pipeline-manager.tsx` (Integrated interactive BGE Reranker card directly within the Hybrid Retrieval Playground, displaying rerank telemetry, rank migrations `(was #N)`, and calibrated scores)
+  - Tests:
+    - `tests/unit/heuristic-reranker.test.ts` (6 tests)
+    - `tests/unit/bge-reranker-adapter.test.ts` (9 tests)
+    - `tests/integration/reranker-factory.test.ts` (2 tests)
+    - `tests/integration/admin-rerank-test-route.test.ts` (4 tests)
+- Tests:
+  - Total: 446 unit/integration tests passing in Vitest across 69 test suites (69/69 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 39 static/dynamic routes compiled cleanly).
+- Next: F028 — Context builder/dedup/budget
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 26
+- DONE: 27
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 24
+- PENDING: 23
 
 The agent must update these totals when statuses change.
 
