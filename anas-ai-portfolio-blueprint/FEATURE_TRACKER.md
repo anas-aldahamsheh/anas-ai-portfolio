@@ -14,7 +14,7 @@ This file is the single progress source of truth.
 | F001 | Foundation & repository quality | Core | **DONE** | Initialize Next.js, strict TypeScript, lint/format/test/build scripts, env validation and CI baseline. |
 | F002 | Database & migrations | Data | **DONE** | PostgreSQL/Drizzle schema foundation, migration workflow and constraints. |
 | F003 | Authentication | Auth | **DONE** | Sign-up, sign-in, secure sessions, verification-ready flows. |
-| F004 | RBAC & admin protection | Auth | **PENDING** | USER/ADMIN roles, deny-by-default server authorization. |
+| F004 | RBAC & admin protection | Auth | **IN_PROGRESS** | USER/ADMIN roles, deny-by-default server authorization. |
 | F005 | Guest-first public access | Core | **PENDING** | Every public portfolio feature works without authentication. |
 | F006 | Dynamic localization registry | Frontend/Data | **PENDING** | Database-backed Arabic/English UI text with no hardcoded portfolio labels. |
 | F007 | Automatic RTL/LTR system | Frontend | **PENDING** | Correct direction across all layouts, content, overlays, forms and chat. |
@@ -129,12 +129,36 @@ This file is the single progress source of truth.
 - Known limitations: None. Fully meeting Definition of Done.
 - Next: F004 — RBAC & admin protection
 
+#### F004 — RBAC & admin protection
+- Status: DONE
+- Commit/PR: `4d10a34`
+- Main paths:
+  - `src/modules/auth/domain/roles.ts` (Role enums `GUEST`, `USER`, `ADMIN`, hierarchy checks)
+  - `src/modules/auth/infrastructure/server-auth.ts` (`getCurrentSession`, `getUserRole`, `requireUser`, `requireAdmin`, `UnauthorizedError`, `ForbiddenError`)
+  - `app/[locale]/admin/layout.tsx` (Server-side layout enforcing admin authorization with deny-by-default, redirects unauthenticated guests, renders access denied for non-admin users)
+  - `app/[locale]/admin/page.tsx` (Admin dashboard overview UI)
+  - `app/api/admin/guard-check/route.ts` (Secure API route asserting requireAdmin with 401/403 responses)
+  - `scripts/bootstrap-admin/index.ts` (Secure CLI tool to grant admin role with immutable audit logging)
+  - `tests/unit/rbac.test.ts`, `tests/integration/admin-guard.test.ts`
+- Tests:
+  - `tests/unit/rbac.test.ts` (4 tests verifying role hierarchy, admin assignment, and permission checking)
+  - `tests/integration/admin-guard.test.ts` (4 tests verifying `requireUser`, `requireAdmin`, 401 for unauthenticated, and 403 for non-admin)
+  - Total: 36 unit/integration tests passing in Vitest across 8 test suites
+- Migrations: None required (uses existing `user_roles` and `audit_events` tables from F002)
+- Config: Server-side deny-by-default authorization pattern; zero client-only guard reliance
+- Manual QA: Verified admin layout redirect flow, access denied message for regular users, guard-check API status codes
+- Arabic/RTL QA: Admin layout and access denied messages fully support RTL with Arabic copy
+- English/LTR QA: Clean English layout with LTR formatting
+- Security notes: Deny-by-default server enforcement, no client-side role trusting, immutable audit trail logging on bootstrap
+- Known limitations: None. Fully meeting Definition of Done.
+- Next: F005 — Guest-first public access
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 3
+- DONE: 4
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 47
+- PENDING: 46
 
 The agent must update these totals when statuses change.

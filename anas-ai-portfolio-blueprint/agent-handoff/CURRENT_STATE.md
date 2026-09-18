@@ -1,28 +1,31 @@
 # Current State
 
-Last updated: F003 completed.
+Last updated: F004 completed.
 
 ## Current feature
-F004 — RBAC & admin protection (PENDING).
+F004 — RBAC & admin protection (DONE).
+Next: F005 — Guest-first public access (PENDING).
 
 ## Repository state
-- Branch: `feat/f003-authentication`
-- Last commit: `712a0a2a1087982d8f7135eb2760826688db7de9`
+- Branch: `feat/f004-rbac-admin-protection`
+- Last commit: `4d10a34`
 - Completed features:
   - F001: Foundation & repository quality (DONE)
   - F002: Database & migrations (DONE)
   - F003: Authentication (DONE)
+  - F004: RBAC & admin protection (DONE)
 - Better Auth setup complete with Drizzle PostgreSQL adapter (`users`, `sessions`, `accounts`, `verifications`).
-- Auth API mounted at `/api/auth/[...all]`.
-- Bilingual auth pages active at `/ar/sign-in`, `/en/sign-in`, `/ar/sign-up`, `/en/sign-up` with guest reassurance banner.
-- 28 unit and integration tests passing in Vitest across 6 test suites.
+- Role-based access control implemented (`GUEST`, `USER`, `ADMIN`) with server-enforced deny-by-default checks (`requireUser`, `requireAdmin`).
+- Admin route protection active in `app/[locale]/admin/layout.tsx` (redirects unauthenticated to sign-in, denies non-admin users) and admin API route `app/api/admin/guard-check/route.ts`.
+- Admin bootstrap CLI tool in `scripts/bootstrap-admin/index.ts` with immutable audit logging.
+- 36 unit and integration tests passing in Vitest across 8 test suites.
 - Full verification passed (Prettier, ESLint, TypeScript strict, Vitest, Next.js build).
 
 ## Last successful commands
 - `pnpm format:check` (passed)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 28/28 tests passed)
+- `pnpm test` (passed, 36/36 tests passed)
 - `pnpm build` (passed, all routes compiled cleanly)
 
 ## Database migrations
@@ -32,14 +35,13 @@ F004 — RBAC & admin protection (PENDING).
 None.
 
 ## Next action
-Begin **F004 — RBAC & admin protection**:
-1. Implement server-side RBAC authorization utilities in `src/modules/auth/application/rbac.ts` and `src/modules/auth/infrastructure/server-auth.ts`.
-2. Define server-side guard `requireAdmin()` and `requireUser()` with deny-by-default policy.
-3. Protect admin layout/routes in `app/[locale]/admin/layout.tsx` and admin APIs in `app/api/admin/`.
-4. Create secure admin bootstrap script in `scripts/bootstrap-admin/`.
-5. Add unit and integration tests for RBAC enforcement and unprivileged user rejection (HTTP 401/403).
+Begin **F005 — Guest-first public access**:
+1. Review `docs/features/01_GUEST_ACCESS.md` and `MASTER_BUILD_SPEC.md` Section 3.
+2. Ensure every public feature (projects, deep dives, CV viewer/download, AI assistant, Job Fit Analyzer) functions without login, maintaining GUEST request context and zero forced auth walls.
+3. Prepare implementation plan for F005.
 
 ## Important reminders
 - Update this file before ending an agent session.
 - Update `FEATURE_TRACKER.md`.
 - Never claim DONE without tests meeting Definition of Done.
+
