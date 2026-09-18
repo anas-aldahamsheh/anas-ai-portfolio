@@ -49,7 +49,7 @@ This file is the single progress source of truth.
 | F036 | RAG Debug View | Feature | **DONE** | Safe retrieval telemetry without chain-of-thought. |
 | F037 | Evaluation Dashboard | Feature | **DONE** | Public/admin metrics for retrieval/generation quality. |
 | F038 | AI evaluation runner | AI | **DONE** | Dataset-driven regression evaluation. |
-| F039 | Admin content center | Admin | **PENDING** | Manage pages, sections, blocks, projects and publishing. |
+| F039 | Admin content center | Admin | **DONE** | Manage pages, sections, blocks, projects and publishing. |
 | F040 | Admin AI control center | Admin | **PENDING** | Full RAG/model/prompt/API configuration UI. |
 | F041 | Audit log | Admin/Security | **PENDING** | Immutable-style audit events for sensitive changes. |
 | F042 | Feature flags | Ops/Admin | **PENDING** | Controlled rollout of risky features. |
@@ -950,15 +950,43 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 61 static/dynamic routes compiled cleanly).
 - Next: F039 — Admin content center
 
+### F039: Admin Content Center (DONE)
+- Implemented production Admin Content Center adhering strictly to `docs/admin/01_ADMIN_CONTROL_PLANE.md`, `docs/admin/02_CONTENT_AND_SECTION_MANAGEMENT.md`, `docs/admin/05_PUBLISHING_AND_AUDIT.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/modules/content/domain/content-center.ts`: Core domain models (`ContentPublishStatus`, `AdminPageItem`, `AdminSectionItem`, `AdminBlockItem`, `ContentCenterSummary`, `CreatePageSchema`, `UpdatePageStatusSchema`, `CreateSectionSchema`, `UpdateSectionSchema`, `ReorderSectionsSchema`).
+  - `src/modules/content/domain/index.ts`: Barrel export.
+  - `src/modules/content/infrastructure/baseline-content-data.ts`: Authentic portfolio pages (Home, Projects, CV, Lab, Evaluation, Job Fit), section counts, and summary baselines.
+  - `src/modules/content/infrastructure/content-center-service.ts`: Implemented `ContentCenterService` managing CRUD operations for pages, sections, publishing status toggles, accessible section reordering, cascaded deletions, cache invalidation, and immutable audit event logging.
+  - `app/api/admin/content/overview/route.ts`: Admin `GET /api/admin/content/overview` returning summary counts and pages. Guarded by `requireAdmin`.
+  - `app/api/admin/content/pages/route.ts`: Admin `GET` and `POST` for page listing and creation. Guarded by `requireAdmin`.
+  - `app/api/admin/content/pages/[id]/status/route.ts`: Admin `PATCH` for page status transition (`DRAFT` / `PUBLISHED` / `ARCHIVED`). Guarded by `requireAdmin`.
+  - `app/api/admin/content/sections/route.ts`: Admin `GET` and `POST` for section management by `pageId`. Guarded by `requireAdmin`.
+  - `app/api/admin/content/sections/[id]/route.ts`: Admin `PATCH` and `DELETE` for individual sections. Guarded by `requireAdmin`.
+  - `app/api/admin/content/sections/reorder/route.ts`: Admin `POST` for keyboard and drag/drop section reordering. Guarded by `requireAdmin`.
+  - `src/modules/localization/infrastructure/core-system-keys.ts`: Added `"content"` to category union and added 5 dynamic localized keys.
+  - `src/modules/admin/presentation/content-center-manager.tsx`: Multi-tab admin interface: Pages Management (with inline create route dialog, status badges, and publish/unpublish toggles), Dynamic Section Builder (with page selector, type selector, accessible up/down ordering, and deletion), and Publishing & Review Queue (with verification rules and batch publish).
+  - `src/modules/admin/presentation/index.ts`: Re-exported `ContentCenterManager`.
+  - `app/[locale]/admin/content/page.tsx`: Admin Content page with localized metadata and server-side data fetch.
+  - `app/[locale]/admin/sections/page.tsx`: Section builder alias route.
+  - `app/[locale]/admin/layout.tsx`: Sidebar navigation verified for `/admin/content` and `/admin/sections`.
+  - Tests:
+    - `tests/unit/content-center-service.test.ts` (7 tests verifying summary, page listing, page creation, status updates, section creation, section reordering, and deletion)
+    - `tests/integration/content-center-api.test.ts` (9 tests verifying 401, 403, 400 validation, and 200 CRUD/reorder endpoints)
+    - `tests/integration/content-center-ui.test.tsx` (6 tests verifying stat cards, pages table, add page form, sections builder with up/down buttons, publishing queue, and Arabic RTL layout)
+- Tests:
+  - Total: 660 unit/integration tests passing in Vitest across 107 test suites (107/107 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 65 static/dynamic routes compiled cleanly).
+- Next: F040 — Admin AI control center
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 38
+- DONE: 39
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 12
+- PENDING: 11
 
 The agent must update these totals when statuses change.
+
 
 
 
