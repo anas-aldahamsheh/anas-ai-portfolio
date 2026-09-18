@@ -1103,15 +1103,33 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 772 unit/integration tests passing in Vitest across 127 test suites (127/127 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 18.3s).
-- Next: F048 — Responsive behavior
+### F048: Responsive behavior (DONE)
+- Implemented responsive multi-breakpoint experience adhering strictly to `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`, `docs/features/01_GUEST_ACCESS.md`, and modern responsive web standards:
+  - `app/[locale]/layout.tsx`: Added mobile-first `Viewport` configuration (`width: "device-width"`, `initialScale: 1`, `maximumScale: 5`) with media-query-based system theme colors (`#ffffff` light / `#090d16` dark).
+  - `src/lib/responsive/breakpoints.ts`: Standardized responsive breakpoint definitions (`sm: 640`, `md: 768`, `lg: 1024`, `xl: 1280`, `2xl: 1536`) and CSS media query selectors for mobile, tablet, desktop, reduced motion, and dark mode.
+  - `src/lib/responsive/use-media-query.ts`: Implemented React 19 / SSR-compliant `useMediaQuery`, `useIsMobile`, `useIsTablet`, and `useIsDesktop` hooks using `useSyncExternalStore` for external media query subscription without cascading re-renders.
+  - `src/lib/responsive/index.ts`: Barrel export.
+  - Critical Mobile Flows Verified:
+    - Navigation: Desktop links with `hidden md:flex`, mobile hamburger menu trigger with `md:hidden`, and accessible mobile drawer dialog (`id="mobile-nav-menu"`) with Escape dismiss and route-change reset.
+    - AI Chat Drawer: Responsive slide-over drawer (`w-full` on mobile, `sm:w-[460px]` on tablet/desktop) with floating circular launcher.
+    - CV Viewer: Dual layout displaying embedded PDF viewer object on desktop (`hidden md:block`) and fallback card on mobile (`block md:hidden`) to avoid touch trapping.
+    - Job Fit Analyzer & Project Deep Dive: Responsive flex/grid layouts adapting smoothly from single column to 12-column layouts.
+    - Arabic RTL & English LTR parity across all screen dimensions.
+  - Tests:
+    - `tests/unit/responsive.test.ts` (4 tests verifying breakpoint constants, mobile/tablet/desktop media query matching, reactive subscription updates, and custom queries)
+    - `tests/integration/responsive-behavior.test.tsx` (4 tests verifying viewport export, desktop nav hiding on mobile, mobile drawer opening/closing via toggle and Escape, and Arabic RTL layout)
+- Tests:
+  - Total: 780 unit/integration tests passing in Vitest across 129 test suites (129/129 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 17.0s).
+- Next: F049 — Security test pass (OWASP)
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 47
+- DONE: 48
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 3
+- PENDING: 2
 
 The agent must update these totals when statuses change.
 
