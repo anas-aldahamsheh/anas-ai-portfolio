@@ -1089,15 +1089,29 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 765 unit/integration tests passing in Vitest across 125 test suites (125/125 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 19.7s).
-- Next: F047 — Accessibility compliance
+### F047: Accessibility compliance (DONE)
+- Implemented WCAG 2.2 AA accessibility compliance adhering strictly to `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`, `docs/features/01_GUEST_ACCESS.md`, and bilingual Arabic RTL / English LTR design guidelines:
+  - `src/modules/accessibility/presentation/skip-link.tsx`: Accessible `SkipLink` component (`href="#main-content"`) styled with keyboard focus appearance, high-contrast focus rings, and bilingual labels ("الانتقال إلى المحتوى الرئيسي" / "Skip to main content").
+  - `src/modules/accessibility/presentation/announcer.tsx`: `AnnouncerProvider` with `useAnnouncer` hook providing screen reader live regions (`#sr-announcer-polite` with `aria-live="polite"` and `#sr-announcer-assertive` with `aria-live="assertive"`).
+  - `src/modules/accessibility/presentation/focus-trap.ts`: Reusable client hook `useFocusTrap` trapping keyboard Tab/Shift+Tab focus within modals and drawers, handling Escape dismiss, and restoring previous focus upon closing.
+  - `src/modules/accessibility/presentation/index.ts`: Presentation barrel export.
+  - `app/[locale]/layout.tsx`: Mounted `SkipLink` and `AnnouncerProvider` globally across public and admin routes.
+  - `app/[locale]/(public)/layout.tsx` & `app/[locale]/admin/layout.tsx`: Enforced HTML5 semantic landmarks with `<main id="main-content" tabIndex={-1}>` ensuring skip link navigation directly focuses main content.
+  - Tests:
+    - `tests/unit/accessibility.test.tsx` (6 tests verifying SkipLink English/Arabic labels, href target, announcer polite/assertive live regions, and focus trap tab looping/escape dismiss)
+    - `tests/integration/accessibility-landmarks.test.tsx` (1 test verifying full page semantic structure with banner, navigation, main, and contentinfo landmarks alongside live region and skip link)
+- Tests:
+  - Total: 772 unit/integration tests passing in Vitest across 127 test suites (127/127 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 18.3s).
+- Next: F048 — Responsive behavior
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 46
+- DONE: 47
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 4
+- PENDING: 3
 
 The agent must update these totals when statuses change.
 
