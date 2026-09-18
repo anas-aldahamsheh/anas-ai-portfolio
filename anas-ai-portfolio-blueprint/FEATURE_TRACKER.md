@@ -34,7 +34,7 @@ This file is the single progress source of truth.
 | F021 | Prompt registry & versioning | AI/Admin | **DONE** | Admin-editable prompt versions with rollback. |
 | F022 | RAG ingestion pipeline | AI | **DONE** | Normalize, chunk, embed, metadata, index, update/delete sync. |
 | F023 | BGE-M3 embedding adapter | AI | **DONE** | Default multilingual embedding integration behind provider interface. |
-| F024 | Hybrid retrieval | AI | **PENDING** | Dense + sparse retrieval, metadata filtering and fusion. |
+| F024 | Hybrid retrieval | AI | **DONE** | Dense + sparse retrieval, metadata filtering and fusion. |
 | F025 | Query Router | AI | **PENDING** | Route intent/scope to relevant retrieval policy. |
 | F026 | Query Rewriting | AI | **PENDING** | Configurable multilingual multi-query rewriting. |
 | F027 | BGE reranker adapter | AI | **PENDING** | Default multilingual reranking adapter. |
@@ -642,15 +642,40 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 353 unit/integration tests passing in Vitest across 52 test suites (52/52 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 35 routes compiled cleanly).
-- Next: F024 — Hybrid retrieval
+### F024: Hybrid Retrieval (DONE)
+- Implemented production dense and sparse hybrid retrieval with Reciprocal Rank Fusion (RRF), Arabic & English lexical BM25, and scoped metadata filtering:
+  - `src/ai/contracts/retrieval.ts` (`RetrievalFilter`, `RetrievalQuery`, `ScoredCandidate`, `DenseRetrieverPort`, `SparseRetrieverPort`, `FusionStrategyPort`, `HybridRetrievalOptions`, `RetrievalTelemetry`, `HybridRetrievalResult`, and Zod schema `HybridSearchSchema`)
+  - `src/ai/contracts/index.ts` (Re-exported retrieval contracts)
+  - `src/ai/retrieval/filters/filter-builder.ts` (`buildVectorSearchFilter`, `matchesRetrievalFilter`, `createProjectScopeFilter`, `createCvFilter`, `createSectionScopeFilter`)
+  - `src/lib/qdrant/vector-store.ts` (Added array-in-filter evaluation and `scrollPoints` implementation for lexical and in-memory indexing)
+  - `src/ai/retrieval/dense/dense-retriever.ts` (`DenseRetriever` implementing `DenseRetrieverPort`, using BGE-M3 or active embedding model and vector search with metadata filtering and graceful fallback)
+  - `src/ai/retrieval/sparse/arabic-bm25-tokenizer.ts` (Multilingual Arabic/English tokenizer with Unicode NFKC, tatweel removal, tashkeel diacritic removal, Alef/Teh Marbuta/Alef Maksura normalization, bilingual stopword filtering, term frequency, and Okapi BM25 scoring)
+  - `src/ai/retrieval/sparse/sparse-retriever.ts` (`SparseRetriever` implementing `SparseRetrieverPort`, performing BM25 scoring over relational database chunks with vector store fallback)
+  - `src/ai/retrieval/fusion/rrf-fusion.ts` (`ReciprocalRankFusion` implementing standard $RRF(d) = \sum \frac{1}{k + rank}$ fusion with $k=60$ default, candidate capping, and `LinearScoreFusion` comparative strategy)
+  - `src/ai/retrieval/hybrid/hybrid-retriever.ts` (`HybridRetriever` orchestrating concurrent dense and sparse retrieval via `Promise.all`, RRF fusion, candidate cap enforcement, and telemetry tracking)
+  - `src/ai/retrieval/index.ts` (Unified export of all retrieval ports, classes, and utilities)
+  - `app/api/admin/rag/search/route.ts` (Admin-protected testing endpoint for hybrid/dense/sparse retrieval)
+  - `src/modules/admin/presentation/rag-pipeline-manager.tsx` (Added interactive "Hybrid Retrieval Playground" card supporting real-time query testing in Arabic/English, mode selection, candidate inspection, and latency telemetry)
+  - Tests:
+    - `tests/unit/arabic-bm25-tokenizer.test.ts` (6 tests)
+    - `tests/unit/rrf-fusion.test.ts` (4 tests)
+    - `tests/unit/filter-builder.test.ts` (4 tests)
+    - `tests/unit/dense-retriever.test.ts` (4 tests)
+    - `tests/unit/sparse-retriever.test.ts` (4 tests)
+    - `tests/integration/hybrid-retriever.test.ts` (3 tests)
+    - `tests/integration/admin-rag-search-route.test.ts` (4 tests)
+- Tests:
+  - Total: 382 unit/integration tests passing in Vitest across 59 test suites (59/59 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 36 routes compiled cleanly).
+- Next: F025 — Query Router
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 23
+- DONE: 24
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 27
+- PENDING: 26
 
 The agent must update these totals when statuses change.
 

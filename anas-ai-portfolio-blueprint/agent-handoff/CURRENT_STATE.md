@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F023 completed.
+Last updated: F024 completed.
 
 ## Current feature
-F023 — BGE-M3 embedding adapter (DONE). Next is F024 — Hybrid retrieval.
+F024 — Hybrid retrieval (DONE). Next is F025 — Query Router.
 
 ## Repository state
-- Branch: `feat/f023-bge-m3-embedding-adapter`
+- Branch: `feat/f024-hybrid-retrieval`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -32,18 +32,27 @@ F023 — BGE-M3 embedding adapter (DONE). Next is F024 — Hybrid retrieval.
   - F021: Prompt registry & versioning (DONE)
   - F022: RAG ingestion pipeline (DONE)
   - F023: BGE-M3 embedding adapter (DONE)
-- BGE-M3 Embedding Adapter Architecture implemented:
-  - Adapter Implementation (`src/ai/embeddings/adapters/bge-m3-embedding-adapter.ts`): BGE-M3 multilingual adapter adhering to `EmbeddingPort` contract (1024 dimension, unit L2 normalization, configurable batching, TEI and OpenAI endpoint compatibility, exponential retry backoff, deterministic offline fallback, and bilingual health check).
-  - Dynamic Factory (`src/ai/embeddings/factory.ts`): Resolves active embedding model assignment from `modelRegistryService`, retrieves decrypted credentials from `secretsService`, and injects runtime policy with zero-crash offline resilience.
-  - Test suites: 353 unit and integration tests passing in Vitest across 52 test suites (52/52 passing).
-- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 353/353, Next.js build clean with all 35 static & dynamic routes compiled).
+  - F024: Hybrid retrieval (DONE)
+- Hybrid Retrieval Architecture implemented:
+  - Retrieval Contracts (`src/ai/contracts/retrieval.ts`): Typed ports for `DenseRetrieverPort`, `SparseRetrieverPort`, `FusionStrategyPort`, `RetrievalFilter`, `RetrievalQuery`, `ScoredCandidate`, `HybridRetrievalOptions`, `RetrievalTelemetry`, `HybridRetrievalResult`, and `HybridSearchSchema`.
+  - Scoped Filter Builder (`src/ai/retrieval/filters/filter-builder.ts`): Multi-value vector store search filters and in-memory evaluators for project scopes, CV, sections, and tags.
+  - Dense Vector Retriever (`src/ai/retrieval/dense/dense-retriever.ts`): Cosine similarity search over Qdrant collections with dynamic active embedding adapter and metadata projection.
+  - Multilingual BM25 Tokenizer & Scorer (`src/ai/retrieval/sparse/arabic-bm25-tokenizer.ts`): Unicode NFKC, Arabic diacritic stripping, tatweel removal, Alef/Teh Marbuta/Alef Maksura normalization, bilingual stopword filtering, and Okapi BM25 scoring.
+  - Sparse Retriever (`src/ai/retrieval/sparse/sparse-retriever.ts`): BM25 lexical retriever querying relational chunk database with zero-crash fallback to vector store points.
+  - Reciprocal Rank Fusion (`src/ai/retrieval/fusion/rrf-fusion.ts`): Standard RRF fusion ($RRF(d) = \sum \frac{1}{k + rank}$) with configurable $k=60$ default, candidate capping, and comparative Linear Score Fusion.
+  - Hybrid Retrieval Orchestrator (`src/ai/retrieval/hybrid/hybrid-retriever.ts`): Concurrent execution of dense and sparse searches via `Promise.all`, RRF fusion, candidate ranking, and latency telemetry.
+  - Admin RAG Search API & UI:
+    - Admin search endpoint `app/api/admin/rag/search/route.ts` with strict RBAC.
+    - Interactive "Hybrid Retrieval Playground" card in `src/modules/admin/presentation/rag-pipeline-manager.tsx`.
+  - Test suites: 382 unit and integration tests passing in Vitest across 59 test suites (59/59 passing).
+- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 382/382, Next.js build clean with all 36 static & dynamic routes compiled).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 353/353 tests passed across 52 suites)
-- `pnpm build` (passed, all 35 static SSG and dynamic SSR routes compiled cleanly)
+- `pnpm test` (passed, 382/382 tests passed across 59 suites)
+- `pnpm build` (passed, all 36 static SSG and dynamic SSR routes compiled cleanly)
 
 ## Database migrations
 - `drizzle/0000_great_wendell_vaughn.sql` (committed)
@@ -52,21 +61,9 @@ F023 — BGE-M3 embedding adapter (DONE). Next is F024 — Hybrid retrieval.
 None.
 
 ## Next action
-Begin **F024 — Hybrid retrieval**:
-1. Review `docs/ai/05_HYBRID_RETRIEVAL.md`.
-2. Implement dense retrieval with cosine similarity against Qdrant vector store.
-3. Implement sparse/lexical retrieval with multilingual BM25 and Arabic normalization.
-4. Implement Reciprocal Rank Fusion (RRF) algorithm to calibrate and merge dense + sparse candidates.
-5. Apply mandatory metadata filtering (locale, project scope, tags, visibility).
-6. Author unit and integration tests.
-
-## Important reminders
-- Update this file before ending an agent session.
-- Update `FEATURE_TRACKER.md`.
-- Never claim DONE without tests meeting Definition of Done.
-
-
-## Important reminders
-- Update this file before ending an agent session.
-- Update `FEATURE_TRACKER.md`.
-- Never claim DONE without tests meeting Definition of Done.
+Begin **F025 — Query Router**:
+1. Review `docs/ai/06_QUERY_ROUTER.md`.
+2. Define `QueryRouterPort`, intent types (greeting, general portfolio, specific project, recruiter/skills, contact, out-of-scope), retrieval scope policies, and confidence scores.
+3. Implement fast rule-based classifier + lightweight LLM router using active router model from registry.
+4. Implement scoped retrieval policy mapping.
+5. Create tests and verify quality gates.
