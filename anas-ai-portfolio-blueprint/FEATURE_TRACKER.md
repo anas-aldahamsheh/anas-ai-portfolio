@@ -18,7 +18,7 @@ This file is the single progress source of truth.
 | F005 | Guest-first public access | Core | **DONE** | Every public portfolio feature works without authentication. |
 | F006 | Dynamic localization registry | Frontend/Data | **DONE** | Database-backed Arabic/English UI text with no hardcoded portfolio labels. |
 | F007 | Automatic RTL/LTR system | Frontend | **DONE** | Correct direction across all layouts, content, overlays, forms and chat. |
-| F008 | Light/dark theme | Frontend | **PENDING** | System-aware theme plus persistent user/guest override. |
+| F008 | Light/dark theme | Frontend | **DONE** | System-aware theme plus persistent user/guest override. |
 | F009 | Design system & custom Select | Frontend | **PENDING** | Minimal design primitives; all dropdowns styled and accessible. |
 | F010 | Motion system | Frontend | **PENDING** | Subtle reusable animations respecting reduced-motion. |
 | F011 | Dynamic navigation/footer | Content | **PENDING** | Admin-managed navigation, footer and visibility/order. |
@@ -227,12 +227,37 @@ This file is the single progress source of truth.
 - Known limitations: None. Fully meeting Definition of Done.
 - Next: F008 — Light/dark theme
 
+#### F008 — Light/dark theme
+- Status: DONE
+- Commit/PR: `1bcdfbe`
+- Main paths:
+  - `src/modules/theme/domain/theme.ts` (Theme types, THEMES catalog, resolveTheme, isTheme, cookie constants)
+  - `src/modules/theme/infrastructure/theme-cookie.ts` (Server-side cookie extraction and Set-Cookie serialization)
+  - `src/modules/theme/presentation/theme-script.tsx` (Inline blocking script preventing first-paint flash / FOUC)
+  - `src/modules/theme/presentation/theme-provider.tsx` (ThemeProvider utilizing useSyncExternalStore for system matchMedia listening, cookie and localStorage persistence)
+  - `src/modules/theme/presentation/theme-toggle.tsx` (Accessible, restrained theme toggle button with Sun, Moon, and System icons)
+  - `app/[locale]/layout.tsx` (Server cookie reading and ThemeProvider integration)
+  - `app/[locale]/(public)/page.tsx` (ThemeToggle mounted in public header)
+  - `tests/unit/theme.test.ts`, `tests/integration/theme-integration.test.ts`
+- Tests:
+  - `tests/unit/theme.test.ts` (4 tests verifying theme validation, system preference resolution, cookie parsing, and cookie serialization)
+  - `tests/integration/theme-integration.test.ts` (3 tests verifying server cookie extraction, default fallback, and round-trip serialization)
+  - Total: 84 unit/integration tests passing in Vitest across 18 test suites
+- Migrations: None required (theme preferences stored in cookies and localStorage)
+- Config: Zero-flash FOUC architecture; no neon/gradient heavy aesthetic; WCAG contrast standards maintained
+- Manual QA: Tested theme transitions between light, dark, and system; confirmed instant application without hydration mismatch
+- Arabic/RTL QA: ThemeToggle renders with Arabic tooltip and proper RTL spacing
+- English/LTR QA: ThemeToggle renders with English label and LTR layout
+- Security notes: Cookie configured with SameSite=Lax and Path=/; zero script injection vulnerability
+- Known limitations: None. Fully meeting Definition of Done.
+- Next: F009 — Design system & custom Select
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 7
+- DONE: 8
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 43
+- PENDING: 42
 
 The agent must update these totals when statuses change.

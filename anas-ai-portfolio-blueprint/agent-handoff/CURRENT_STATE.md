@@ -1,14 +1,14 @@
 # Current State
 
-Last updated: F007 completed.
+Last updated: F008 completed.
 
 ## Current feature
-F007 — Automatic RTL/LTR system (DONE).
-Next: F008 — Light/dark theme (PENDING).
+F008 — Light/dark theme (DONE).
+Next: F009 — Design system & custom Select (PENDING).
 
 ## Repository state
-- Branch: `feat/f007-automatic-rtl-ltr-system`
-- Last commit: `83e0f22`
+- Branch: `feat/f008-light-dark-theme`
+- Last commit: `1bcdfbe`
 - Completed features:
   - F001: Foundation & repository quality (DONE)
   - F002: Database & migrations (DONE)
@@ -17,19 +17,20 @@ Next: F008 — Light/dark theme (PENDING).
   - F005: Guest-first public access (DONE)
   - F006: Dynamic localization registry (DONE)
   - F007: Automatic RTL/LTR system (DONE)
-- Bidirectional RTL/LTR architecture implemented:
-  - Root direction dynamically set: `<html lang="ar" dir="rtl">` vs `<html lang="en" dir="ltr">`.
-  - Directional icons mirror horizontally in RTL (`DirectionalIcon` with `rtl:-scale-x-100`); universal icons remain unflipped.
-  - Mixed dynamic content isolated with `<MixedContent>` using Arabic script detection and `<IsolatedToken>` for code/technical identifiers.
-  - Overlays and client portals inherit direction via `<DirectionProvider>`.
-- 77 unit and integration tests passing in Vitest across 16 test suites.
+  - F008: Light/dark theme (DONE)
+- Light/Dark theme architecture implemented:
+  - Three modes supported: `light`, `dark`, `system`.
+  - Zero-flash (FOUC) prevention via server-side cookie reading in RootLayout and blocking `<ThemeScript>` in `<head>`.
+  - React 19 `useSyncExternalStore` for reactive `matchMedia` system theme changes.
+  - Accessible, restrained `<ThemeToggle>` component in public header.
+- 84 unit and integration tests passing in Vitest across 18 test suites.
 - Full verification passed (Prettier, ESLint, TypeScript strict, Vitest, Next.js build).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 77/77 tests passed)
+- `pnpm test` (passed, 84/84 tests passed)
 - `pnpm build` (passed, all static SSG and dynamic routes compiled cleanly)
 
 ## Database migrations
@@ -39,16 +40,17 @@ Next: F008 — Light/dark theme (PENDING).
 None.
 
 ## Next action
-Begin **F008 — Light/dark theme**:
-1. Review `docs/frontend/03_THEME.md` and `NON_NEGOTIABLES.md` Rules 17, 18, 19.
-2. Implement Theme domain model (`light`, `dark`, `system`), cookie/storage persistence, and hydration-safe theme script.
-3. Build ThemeProvider and ThemeToggle component supporting guests and authenticated users.
-4. Add unit and integration tests for theme resolution, persistence, and contrast standards.
+Begin **F009 — Design system & custom Select**:
+1. Review `docs/frontend/01_DESIGN_SYSTEM.md`, `docs/frontend/04_CUSTOM_SELECTS_AND_FORMS.md`, and `NON_NEGOTIABLES.md` Rule 16 ("Every native-looking select/dropdown must use the project's styled Select primitive").
+2. Implement core design system primitives (Button, Card, Input, Badge, Dialog/Modal, styled Select).
+3. Ensure custom Select is accessible (keyboard navigable, ARIA listbox, search/filter support, RTL-aware portal positioning).
+4. Add unit and integration tests for custom Select and design primitives.
 
 ## Important reminders
 - Update this file before ending an agent session.
 - Update `FEATURE_TRACKER.md`.
 - Never claim DONE without tests meeting Definition of Done.
+
 
 
 
