@@ -36,7 +36,7 @@ This file is the single progress source of truth.
 | F023 | BGE-M3 embedding adapter | AI | **DONE** | Default multilingual embedding integration behind provider interface. |
 | F024 | Hybrid retrieval | AI | **DONE** | Dense + sparse retrieval, metadata filtering and fusion. |
 | F025 | Query Router | AI | **DONE** | Route intent/scope to relevant retrieval policy. |
-| F026 | Query Rewriting | AI | **PENDING** | Configurable multilingual multi-query rewriting. |
+| F026 | Query Rewriting | AI | **DONE** | Configurable multilingual multi-query rewriting. |
 | F027 | BGE reranker adapter | AI | **PENDING** | Default multilingual reranking adapter. |
 | F028 | Context builder/dedup/budget | AI | **PENDING** | Deterministic context packing and token budget. |
 | F029 | Grounded generation & citations | AI | **PENDING** | Evidence-bound answers, source mapping and citation validation. |
@@ -687,13 +687,30 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 37 routes compiled cleanly).
 - Next: F026 — Query Rewriting
 
+### F026: Query Rewriting (DONE)
+- Implemented production multilingual multi-query rewriting adhering strictly to `docs/ai/07_QUERY_REWRITING.md`:
+  - `src/ai/contracts/query-rewriter.ts` (`QueryRewriteInput`, `QueryRewriteOptions`, `QueryRewriteResult`, `QueryRewriterPort`, `RewriteQueriesSchema`, `RewriteTestInputSchema`)
+  - `src/ai/contracts/index.ts` (Re-exported query rewriter contracts)
+  - `src/ai/query-rewrite/heuristic-rewriter.ts` (Deterministic multilingual heuristic rewriter with entity hint expansion, portfolio scope expansion, Arabic diacritic normalization, and stopword cleaning)
+  - `src/ai/query-rewrite/query-rewriter.ts` (`QueryRewriter` orchestrator resolving active rewrite model assignment from model registry, rendering `query_rewriter` prompt from prompt registry, performing OpenAI-compatible bounded completions with retry/timeout, safely parsing JSON query arrays, and seamlessly falling back to heuristic expansion on any upstream failure)
+  - `src/ai/query-rewrite/index.ts` (Unified export of rewriter contracts, heuristics, and service)
+  - `app/api/admin/ai/rewrite/test/route.ts` (Admin-protected testing endpoint for rewriting validation)
+  - Tests:
+    - `tests/unit/heuristic-rewriter.test.ts` (6 tests)
+    - `tests/unit/query-rewriter-service.test.ts` (4 tests)
+    - `tests/integration/admin-rewrite-test-route.test.ts` (4 tests)
+- Tests:
+  - Total: 425 unit/integration tests passing in Vitest across 65 test suites (65/65 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 38 static/dynamic routes compiled cleanly).
+- Next: F027 — BGE reranker adapter
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 25
+- DONE: 26
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 25
+- PENDING: 24
 
 The agent must update these totals when statuses change.
 
