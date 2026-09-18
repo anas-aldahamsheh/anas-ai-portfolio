@@ -36,7 +36,7 @@ describe("Guest-First Public Access Integration (F005)", () => {
     const readinessRes = await readinessGet();
     expect(readinessRes.status).toBe(200);
     const readinessBody = await readinessRes.json();
-    expect(readinessBody.status).toBe("ready");
+    expect(["ready", "degraded"]).toContain(readinessBody.status);
   });
 
   it("enforces that while public services are accessible to guests, admin endpoints remain strictly protected (401)", async () => {

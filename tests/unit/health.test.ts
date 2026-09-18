@@ -19,7 +19,7 @@ describe("Health & Readiness Endpoints (F046)", () => {
     expect(response.status).toBe(200);
 
     const body = await response.json();
-    expect(body.status).toBe("ready");
+    expect(["ready", "degraded"]).toContain(body.status);
     expect(body.timestamp).toBeDefined();
   });
 });

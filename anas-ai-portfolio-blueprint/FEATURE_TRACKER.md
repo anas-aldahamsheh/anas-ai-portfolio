@@ -57,9 +57,9 @@ This file is the single progress source of truth.
 | F044 | Rate limiting & abuse protection | Security | **DONE** | Chat/auth/job-fit/admin rate limits. |
 | F045 | Observability | Ops | **DONE** | Structured logs, request IDs, metrics, tracing, errors. |
 | F046 | Health/readiness endpoints | Ops | **DONE** | Operational health checks without leaking secrets. |
-| F047 | Accessibility compliance | Frontend/QA | **PENDING** | Keyboard, focus, semantics, screen-reader, contrast, Axe. |
-| F048 | Responsive behavior | Frontend/QA | **PENDING** | Phone/tablet/desktop layouts in ar/en and dark/light. |
-| F049 | Security test pass | Security/QA | **PENDING** | OWASP-oriented checks, authz, upload validation, injection defense. |
+| F047 | Accessibility compliance | Frontend/QA | **DONE** | Keyboard, focus, semantics, screen-reader, contrast, Axe. |
+| F048 | Responsive behavior | Frontend/QA | **DONE** | Phone/tablet/desktop layouts in ar/en and dark/light. |
+| F049 | Security test pass | Security/QA | **DONE** | OWASP-oriented checks, authz, upload validation, injection defense. |
 | F050 | Production deployment & rollback | Ops | **PENDING** | Reproducible deployment, migrations, smoke tests and rollback. |
 
 #### F001 — Foundation & repository quality
@@ -1121,15 +1121,31 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 780 unit/integration tests passing in Vitest across 129 test suites (129/129 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 17.0s).
-- Next: F049 — Security test pass (OWASP)
+### F049: Security test pass (DONE)
+- Implemented comprehensive OWASP Top 10 security verification test suites adhering strictly to `docs/security/01_THREAT_MODEL.md`, `docs/security/02_AUTH_AND_ADMIN_SECURITY.md`, `docs/security/03_SECRETS_AND_PROVIDER_ENDPOINTS.md`, and `docs/security/04_UPLOAD_SECURITY.md`:
+  - `tests/security/owasp-access-control.test.ts`: Verified broken access control defense (OWASP A01:2021) ensuring unauthenticated requests are rejected with 401 UnauthorizedError, authenticated normal users are rejected from admin operations with 403 ForbiddenError, and user role resolution defaults safely to "USER" without privilege escalation vulnerability.
+  - `tests/security/owasp-injection-defense.test.ts`: Verified injection defenses (OWASP A03:2021 & OWASP LLM01:2025) ensuring prompt templates enforce strict evidence boundaries (`<evidence>` / `{{context_chunks}}`) with instruction override resistance, and `stripHtmlTags` strips `<script>` tags, `<style>`, and event handlers (`onerror`). Tested SQL injection resistance on UUID entity identifiers.
+  - `tests/security/owasp-ssrf-defense.test.ts`: Verified SSRF protections (OWASP A10:2021) ensuring `validateOutboundUrl` rejects loopback addresses (`127.0.0.1`, `localhost`, `::1`), cloud metadata endpoints (`169.254.169.254`, `metadata.google.internal`), RFC 1918 private subnets (`10.0.0.0/8`, `192.168.0.0/16`, `172.16.0.0/12`), and non-HTTP schemes (`file://`, `gopher://`, `ftp://`).
+  - `tests/security/owasp-upload-security.test.ts`: Verified file upload security (OWASP A04:2021) ensuring `validatePdfBytes` inspects `%PDF-` binary magic bytes (`0x25 0x50 0x44 0x46 0x2D`) and strictly rejects spoofed Windows PE executables, Linux ELF binaries, and scripts disguised as `.pdf`.
+  - `tests/security/owasp-secrets-redaction.test.ts`: Verified secret management and anti-leakage (OWASP A09:2021) ensuring `redactSensitiveString` and `redactSensitiveObject` redact Bearer tokens, OpenAI-style API keys (`sk-...`), and passwords. Verified credential redaction from database connection strings in operational health checks.
+  - Backward compatibility bridge: Updated `HealthService.getLiveness()` to export `uptime` and `environment` alongside `uptimeSeconds` with sanitized error messages.
+  - Tests:
+    - `tests/security/owasp-access-control.test.ts` (4 tests passing)
+    - `tests/security/owasp-injection-defense.test.ts` (5 tests passing)
+    - `tests/security/owasp-ssrf-defense.test.ts` (5 tests passing)
+    - `tests/security/owasp-upload-security.test.ts` (4 tests passing)
+    - `tests/security/owasp-secrets-redaction.test.ts` (4 tests passing)
+    - Total: 802 unit/integration/security tests passing across 134 test suites (134/134 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 16.8s).
+- Next: F050 — Production deployment & rollback
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 48
+- DONE: 49
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 2
+- PENDING: 1
 
 The agent must update these totals when statuses change.
 
