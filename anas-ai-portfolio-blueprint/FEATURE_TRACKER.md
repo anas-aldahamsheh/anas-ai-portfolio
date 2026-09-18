@@ -19,7 +19,7 @@ This file is the single progress source of truth.
 | F006 | Dynamic localization registry | Frontend/Data | **DONE** | Database-backed Arabic/English UI text with no hardcoded portfolio labels. |
 | F007 | Automatic RTL/LTR system | Frontend | **DONE** | Correct direction across all layouts, content, overlays, forms and chat. |
 | F008 | Light/dark theme | Frontend | **DONE** | System-aware theme plus persistent user/guest override. |
-| F009 | Design system & custom Select | Frontend | **PENDING** | Minimal design primitives; all dropdowns styled and accessible. |
+| F009 | Design system & custom Select | Frontend | **DONE** | Minimal design primitives; all dropdowns styled and accessible. |
 | F010 | Motion system | Frontend | **PENDING** | Subtle reusable animations respecting reduced-motion. |
 | F011 | Dynamic navigation/footer | Content | **PENDING** | Admin-managed navigation, footer and visibility/order. |
 | F012 | Dynamic section builder | Content | **PENDING** | Admin can create/delete/reorder sections using composable blocks. |
@@ -252,12 +252,40 @@ This file is the single progress source of truth.
 - Known limitations: None. Fully meeting Definition of Done.
 - Next: F009 — Design system & custom Select
 
+### F009: Design system & custom Select
+- Feature: F009 — Design system & custom Select
+- Status: **DONE**
+- Branch: `feat/f009-design-system-custom-select`
+- Commit: `88ac380`
+- Files changed/created:
+  - `src/components/ui/button.tsx` (Variants: primary, secondary, outline, ghost, destructive, link; sizes: sm, md, lg, icon; accessible loading spinner & aria-busy)
+  - `src/components/ui/card.tsx` (Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter)
+  - `src/components/ui/input.tsx` (Input with error states, focus rings, disabled state, RTL alignment)
+  - `src/components/ui/badge.tsx` (Restrained badges: default, secondary, outline, success, destructive)
+  - `src/components/ui/empty-state.tsx` (Clean empty state container with status role and action slot)
+  - `src/components/ui/error-state.tsx` (Error state container with alert role and retry callback)
+  - `src/components/ui/skeleton.tsx` (Pulse skeleton honoring `prefers-reduced-motion`)
+  - `src/components/ui/select.tsx` (Radix UI Select primitive with custom trigger, scroll buttons, portal surface, item indicator, error state, and RTL support)
+  - `src/components/ui/index.ts` (Unified export barrel)
+  - `src/lib/utils.ts` (Shared `cn` helper combining clsx and twMerge)
+  - `src/modules/localization/presentation/language-select.tsx` (Production language switcher utilizing custom Select primitive; Rule 16 compliant with zero native `<select>`)
+  - `app/[locale]/(public)/page.tsx` (Integrated Card, Badge, and LanguageSelect in public UI)
+  - `tests/unit/design-system.test.tsx`
+  - `tests/integration/custom-select.test.tsx`
+- Tests:
+  - `tests/unit/design-system.test.tsx` (12 tests covering Button variants, sizes, loading, Card hierarchy, Input validation states, Badge variants, EmptyState, ErrorState retry, Skeleton)
+  - `tests/integration/custom-select.test.tsx` (6 tests verifying zero native `<select>` in DOM, custom trigger, error states, disabled states, RTL direction, and LanguageSelect)
+  - Total: 102 unit/integration tests passing in Vitest across 20 test suites
+- Rule 16 verified: Zero native `<select>` elements in product DOM.
+- Visual aesthetic verified: Restrained, neutral color palette, no neon glow, no multi-color gradient background.
+- Next: F010 — Motion system
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 8
+- DONE: 9
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 42
+- PENDING: 41
 
 The agent must update these totals when statuses change.
