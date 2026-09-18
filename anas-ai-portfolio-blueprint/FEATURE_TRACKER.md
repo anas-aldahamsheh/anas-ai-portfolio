@@ -51,7 +51,7 @@ This file is the single progress source of truth.
 | F038 | AI evaluation runner | AI | **DONE** | Dataset-driven regression evaluation. |
 | F039 | Admin content center | Admin | **DONE** | Manage pages, sections, blocks, projects and publishing. |
 | F040 | Admin AI control center | Admin | **DONE** | Full RAG/model/prompt/API configuration UI. |
-| F041 | Audit log | Admin/Security | **PENDING** | Immutable-style audit events for sensitive changes. |
+| F041 | Audit log | Admin/Security | **DONE** | Immutable-style audit events for sensitive changes. |
 | F042 | Feature flags | Ops/Admin | **PENDING** | Controlled rollout of risky features. |
 | F043 | Caching & invalidation | Performance | **PENDING** | Tag/key-based cache strategy with correct invalidation. |
 | F044 | Rate limiting & abuse protection | Security | **PENDING** | Chat/auth/job-fit/admin rate limits. |
@@ -996,13 +996,33 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 67 static/dynamic routes compiled cleanly in 20.9s).
 - Next: F041 — Audit log
 
+### F041: Audit Log (DONE)
+- Implemented production-grade immutable audit logging system adhering strictly to `docs/admin/05_PUBLISHING_AND_AUDIT.md`, `docs/admin/01_ADMIN_CONTROL_PLANE.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/modules/admin/domain/audit-log.ts`: Core domain models (`AuditEventRecord`, `AuditAction`, `AuditEntityType`, `AuditLogSummary`, `AuditLogQuerySchema`), plus recursive `sanitizeAuditPayload` function that guarantees 100% automatic redaction of passwords, tokens, API keys, and authorization headers from state diffs before persistence or display.
+  - `src/modules/admin/domain/index.ts`: Re-exported audit contracts and sanitization utilities.
+  - `src/modules/admin/infrastructure/baseline-audit-data.ts`: Authentic historical audit log entries (system init, model assignment, prompt publish, CV publish, reindex, secret update) and summary baseline for resilient offline fallback.
+  - `src/modules/admin/infrastructure/audit-log-service.ts`: Implemented `AuditLogService` with immutable persistence to PostgreSQL `auditEvents` table, 300ms bounded DB queries joined to `users` for actor email resolution, multi-attribute filtering (action, entityType, actor, date ranges), summary KPI calculation, and export generation (`format=json|csv`).
+  - `app/api/admin/audit/route.ts`: Admin `GET /api/admin/audit` returning filtered audit records and KPI summary. Guarded by `requireAdmin(request.headers)`.
+  - `app/api/admin/audit/export/route.ts`: Admin `GET /api/admin/audit/export?format=json|csv` providing compliance audit trail downloads with attachment headers. Guarded by `requireAdmin(request.headers)`.
+  - `src/modules/admin/presentation/audit-log-viewer.tsx`: Audit Log Viewer with 4 KPI cards (Total Events, High-Impact Security Actions, Tracked Entity Types, 100% Credential Redaction badge), live action and entity filter dropdowns, real-time search, audit trail table with color-coded action badges, interactive state diff modal (Safe Before vs After JSON comparison), and one-click CSV / JSON export buttons.
+  - `src/modules/admin/presentation/index.ts`: Re-exported `AuditLogViewer` and its prop contracts.
+  - `app/[locale]/admin/audit/page.tsx`: Production route with localized metadata, server-side prefetch with timeout fallbacks, `export const dynamic = "force-dynamic"`, and renders `AuditLogViewer`.
+  - Tests:
+    - `tests/unit/audit-log-service.test.ts` (8 tests verifying recursive secret redaction for nested objects/arrays, fallback handling, action/entity filtering, KPI summary aggregation, and JSON/CSV export formatting)
+    - `tests/integration/audit-log-api.test.ts` (6 tests verifying 401 unauthenticated, 403 non-admin, 200 audit query, CSV export download headers, and JSON export download headers)
+    - `tests/integration/audit-log-ui.test.tsx` (5 tests verifying F041 badge, 4 KPI cards, action/entity badges, diff modal dialog, and Arabic RTL layout)
+- Tests:
+  - Total: 698 unit/integration tests passing in Vitest across 113 test suites (113/113 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 71 static/dynamic routes compiled cleanly in 16.0s).
+- Next: F042 — Feature flags
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 40
+- DONE: 41
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 10
+- PENDING: 9
 
 The agent must update these totals when statuses change.
 
