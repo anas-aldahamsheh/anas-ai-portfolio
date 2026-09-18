@@ -56,7 +56,7 @@ This file is the single progress source of truth.
 | F043 | Caching & invalidation | Performance | **DONE** | Tag/key-based cache strategy with correct invalidation. |
 | F044 | Rate limiting & abuse protection | Security | **DONE** | Chat/auth/job-fit/admin rate limits. |
 | F045 | Observability | Ops | **DONE** | Structured logs, request IDs, metrics, tracing, errors. |
-| F046 | Health/readiness endpoints | Ops | **PENDING** | Operational health checks without leaking secrets. |
+| F046 | Health/readiness endpoints | Ops | **DONE** | Operational health checks without leaking secrets. |
 | F047 | Accessibility compliance | Frontend/QA | **PENDING** | Keyboard, focus, semantics, screen-reader, contrast, Axe. |
 | F048 | Responsive behavior | Frontend/QA | **PENDING** | Phone/tablet/desktop layouts in ar/en and dark/light. |
 | F049 | Security test pass | Security/QA | **PENDING** | OWASP-oriented checks, authz, upload validation, injection defense. |
@@ -1078,15 +1078,26 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 760 unit/integration tests passing in Vitest across 123 test suites (123/123 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 19.9s).
-- Next: F046 — Health/readiness endpoints
+### F046: Health/Readiness Endpoints (DONE)
+- Implemented production operational health checks adhering strictly to `docs/admin/01_ADMIN_CONTROL_PLANE.md`, `docs/features/01_GUEST_ACCESS.md`, and zero-leakage security constraints:
+  - `src/lib/health/health-service.ts`: `HealthService` executing fast non-blocking liveness probe (`getLiveness`) with uptime and memory usage, plus comprehensive bounded readiness probe (`getReadiness`) verifying database (`SELECT 1`), vector store collection status, multi-tag cache system, and environment configuration. Enforces strict 500ms timeouts on all dependency checks, determines overall status (`ready` / `degraded` / `unready`), and automatically sanitizes database URLs, bearer tokens, and connection strings from error messages.
+  - `app/api/health/route.ts`: Public probe `GET /api/health` returning 200 with `Cache-Control: no-store` and liveness JSON.
+  - `app/api/readiness/route.ts`: Operational probe `GET /api/readiness` returning 200 when ready/degraded or 503 when unready, reporting granular latency and status per subsystem.
+  - Tests:
+    - `tests/unit/health-service.test.ts` (3 tests verifying liveness payload, readiness checks aggregation, and zero credential leakage in error messages)
+    - `tests/integration/health-endpoints.test.ts` (2 tests verifying 200 responses and cache-control headers on `/api/health` and `/api/readiness`)
+- Tests:
+  - Total: 765 unit/integration tests passing in Vitest across 125 test suites (125/125 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 19.7s).
+- Next: F047 — Accessibility compliance
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 45
+- DONE: 46
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 5
+- PENDING: 4
 
 The agent must update these totals when statuses change.
 
