@@ -33,7 +33,7 @@ This file is the single progress source of truth.
 | F020 | Secrets management | Security/Admin | **DONE** | Safe encrypted API credential management and redaction. |
 | F021 | Prompt registry & versioning | AI/Admin | **DONE** | Admin-editable prompt versions with rollback. |
 | F022 | RAG ingestion pipeline | AI | **DONE** | Normalize, chunk, embed, metadata, index, update/delete sync. |
-| F023 | BGE-M3 embedding adapter | AI | **PENDING** | Default multilingual embedding integration behind provider interface. |
+| F023 | BGE-M3 embedding adapter | AI | **DONE** | Default multilingual embedding integration behind provider interface. |
 | F024 | Hybrid retrieval | AI | **PENDING** | Dense + sparse retrieval, metadata filtering and fusion. |
 | F025 | Query Router | AI | **PENDING** | Route intent/scope to relevant retrieval policy. |
 | F026 | Query Rewriting | AI | **PENDING** | Configurable multilingual multi-query rewriting. |
@@ -632,13 +632,25 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 35 routes compiled cleanly).
 - Next: F023 — BGE-M3 embedding adapter
 
+### F023: BGE-M3 Embedding Adapter (DONE)
+- Implemented official BGE-M3 multilingual embedding adapter and dynamic factory integration:
+  - `src/ai/embeddings/adapters/bge-m3-embedding-adapter.ts` (`BgeM3EmbeddingAdapter` implementing `EmbeddingPort` with 1024 dense dimension, `l2Normalize` unit normalization, configurable batching, HuggingFace TEI endpoint support, OpenAI-compatible `/v1/embeddings` endpoint support, bounded exponential backoff retries, offline fallback to deterministic embedding generator, and bilingual health check)
+  - `src/ai/embeddings/factory.ts` (`getActiveEmbeddingAdapter` dynamically querying active model assignment for `capability: "embedding"`, matching provider configuration, decrypting API key from `secretsService`, and applying runtime policy timeouts/retries with zero-crash fallback)
+  - `src/ai/embeddings/index.ts` (Exported embedding ports, deterministic adapter, BGE-M3 adapter, and dynamic factory)
+  - `tests/unit/bge-m3-embedding-adapter.test.ts` (8 unit tests covering L2 normalization, dimension/model properties, deterministic offline generation, TEI JSON format parsing, OpenAI JSON format parsing, retry backoff on failure, and health check validation)
+  - `tests/integration/embedding-factory.test.ts` (3 integration tests covering dynamic resolution from model registry, secret decryption, and graceful offline fallback)
+- Tests:
+  - Total: 353 unit/integration tests passing in Vitest across 52 test suites (52/52 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 35 routes compiled cleanly).
+- Next: F024 — Hybrid retrieval
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 22
+- DONE: 23
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 28
+- PENDING: 27
 
 The agent must update these totals when statuses change.
 

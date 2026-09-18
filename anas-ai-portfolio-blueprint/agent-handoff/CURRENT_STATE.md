@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F022 completed.
+Last updated: F023 completed.
 
 ## Current feature
-F022 — RAG ingestion pipeline (DONE). Next is F023 — BGE-M3 embedding adapter.
+F023 — BGE-M3 embedding adapter (DONE). Next is F024 — Hybrid retrieval.
 
 ## Repository state
-- Branch: `feat/f022-rag-ingestion-pipeline`
+- Branch: `feat/f023-bge-m3-embedding-adapter`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -31,25 +31,18 @@ F022 — RAG ingestion pipeline (DONE). Next is F023 — BGE-M3 embedding adapte
   - F020: Secrets management (DONE)
   - F021: Prompt registry & versioning (DONE)
   - F022: RAG ingestion pipeline (DONE)
-- RAG Ingestion Pipeline Architecture implemented:
-  - Ingestion Contracts (`src/ai/contracts/ingestion.ts`): Typed documents, chunks, metadata, RAG configuration, telemetry status, and validation schemas.
-  - Normalization Engine (`src/ai/ingestion/normalizers/content-normalizer.ts`): Multilingual Unicode NFKC normalization, complete Arabic diacritics / tashkeel stripping, tatweel removal, Alef/Teh Marbuta/Alef Maksura normalization, HTML tag stripping, and deterministic SHA-256 content hashing.
-  - Semantic Chunker (`src/ai/ingestion/chunkers/semantic-chunker.ts`): Block-aware multilingual chunker with word-boundary preservation (zero slicing of Arabic words), heading carryover context, deterministic UUID point IDs, and citation IDs.
-  - Vector Store Adapter (`src/lib/qdrant/vector-store.ts`): Resilient Qdrant REST client with built-in in-memory fallback, cosine similarity computation, filtering, and point deletion.
-  - Embedding Port & Adapter (`src/ai/embeddings/`): 1024-dimensional normalized vector generator.
-  - Source Parsers (`src/ai/ingestion/parsers/`): Authoritative parsers for published projects, approved CV, and dynamic sections.
-  - RAG Indexer (`src/ai/ingestion/indexers/rag-indexer.ts`): Idempotent indexing with content-hash checks, relational database persistence, and vector store synchronization.
-  - Ingestion Service (`src/ai/ingestion/jobs/ingestion-service.ts`): Ingestion job execution, telemetry reporting, RAG runtime config updates, and safe offline baselines.
-  - Admin APIs (`app/api/admin/rag/`): Endpoints for `/status`, `/ingest`, and `/config` guarded by `requireAdmin`.
-  - Admin UI (`src/modules/admin/presentation/rag-pipeline-manager.tsx` and `app/[locale]/admin/rag/page.tsx`): Bilingual Arabic RTL and English LTR control panel with telemetry cards, sync trigger, force reindex toggle, and fine-tuning form.
-- 341 unit and integration tests passing in Vitest across 50 test suites (50/50 passing).
-- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 341/341, Next.js build clean with all 35 static & dynamic routes compiled).
+  - F023: BGE-M3 embedding adapter (DONE)
+- BGE-M3 Embedding Adapter Architecture implemented:
+  - Adapter Implementation (`src/ai/embeddings/adapters/bge-m3-embedding-adapter.ts`): BGE-M3 multilingual adapter adhering to `EmbeddingPort` contract (1024 dimension, unit L2 normalization, configurable batching, TEI and OpenAI endpoint compatibility, exponential retry backoff, deterministic offline fallback, and bilingual health check).
+  - Dynamic Factory (`src/ai/embeddings/factory.ts`): Resolves active embedding model assignment from `modelRegistryService`, retrieves decrypted credentials from `secretsService`, and injects runtime policy with zero-crash offline resilience.
+  - Test suites: 353 unit and integration tests passing in Vitest across 52 test suites (52/52 passing).
+- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 353/353, Next.js build clean with all 35 static & dynamic routes compiled).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 341/341 tests passed across 50 suites)
+- `pnpm test` (passed, 353/353 tests passed across 52 suites)
 - `pnpm build` (passed, all 35 static SSG and dynamic SSR routes compiled cleanly)
 
 ## Database migrations
@@ -59,13 +52,13 @@ F022 — RAG ingestion pipeline (DONE). Next is F023 — BGE-M3 embedding adapte
 None.
 
 ## Next action
-Begin **F023 — BGE-M3 embedding adapter**:
-1. Implement official BGE-M3 embedding adapter behind `EmbeddingPort` interface.
-2. Integrate provider HTTP/REST endpoints with timeout, retry, and token-aware batching.
-3. Wire embedding adapter with the model registry assignments.
-3. Build document embedding and vector/metadata indexing storage.
-4. Implement sync triggers on content update and deletion.
-5. Add unit and integration tests.
+Begin **F024 — Hybrid retrieval**:
+1. Review `docs/ai/05_HYBRID_RETRIEVAL.md`.
+2. Implement dense retrieval with cosine similarity against Qdrant vector store.
+3. Implement sparse/lexical retrieval with multilingual BM25 and Arabic normalization.
+4. Implement Reciprocal Rank Fusion (RRF) algorithm to calibrate and merge dense + sparse candidates.
+5. Apply mandatory metadata filtering (locale, project scope, tags, visibility).
+6. Author unit and integration tests.
 
 ## Important reminders
 - Update this file before ending an agent session.
