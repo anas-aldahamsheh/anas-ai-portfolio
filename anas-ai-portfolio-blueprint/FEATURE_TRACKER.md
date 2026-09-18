@@ -42,7 +42,7 @@ This file is the single progress source of truth.
 | F029 | Grounded generation & citations | AI | **DONE** | Evidence-bound answers, source mapping and citation validation. |
 | F030 | Conversation language matching | AI/Frontend | **DONE** | Assistant replies in user's conversational language. |
 | F031 | Portfolio AI Chat | Feature | **DONE** | Public streaming chatbot with citations. |
-| F032 | Conversation Mode | Feature | **PENDING** | General / Recruiter / Technical modes. |
+| F032 | Conversation Mode | Feature | **DONE** | General / Recruiter / Technical modes. |
 | F033 | Ask AI About This Project | Feature | **PENDING** | Hard project scope retrieval filter. |
 | F034 | Job Fit Analyzer | Feature | **PENDING** | Maps pasted JD requirements to verified portfolio evidence. |
 | F035 | AI Lab | Feature | **PENDING** | Public interactive AI demonstrations configured from admin. |
@@ -800,15 +800,36 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 519 unit/integration tests passing in Vitest across 85 test suites (85/85 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 43 static/dynamic routes compiled cleanly).
-- Next: F032 — Conversation Mode
+### F032: Conversation Mode (DONE)
+- Implemented production conversation mode system adhering strictly to `docs/features/10_CONVERSATION_MODE.md`, `docs/features/03_PORTFOLIO_AI_CHAT.md`, `docs/ai/10_GENERATION_AND_CITATIONS.md`, `docs/admin/04_PROMPT_MANAGEMENT.md`, and `docs/frontend/02_BILINGUAL_RTL_LTR.md`:
+  - `src/ai/contracts/conversation-mode.ts` (`ConversationModeConfig`, `LocalizedConversationMode`, `UpdateConversationModeInput`, `ConversationModePort`, and Zod validation schemas)
+  - `src/ai/contracts/index.ts` (Re-exported conversation mode contracts)
+  - `src/lib/db/schema/ai.ts` (Added `conversationModes` table with fields for English & Arabic names/descriptions, tone guidelines, focus areas, prompt slug, enabled/published flags, and sorting)
+  - `src/ai/modes/baseline-modes.ts` (Authentic baseline definitions for General, Recruiter, and Technical modes with full bilingual support)
+  - `src/ai/modes/conversation-mode-service.ts` (`ConversationModeService` implementing `ConversationModePort` with in-memory TTL caching, database querying with graceful fallback to baseline modes, localized projection, server-side mode verification guard sanitizing invalid modes to "general", and admin update with audit logging)
+  - `src/ai/modes/index.ts` (Unified modes barrel export)
+  - `src/ai/generation/grounded-generator.ts` (Dynamically resolves conversation mode configuration, interpolating tone guidelines and focus areas into prompt rendering)
+  - `src/ai/orchestration/chat-orchestrator.ts` (Verifies client conversation mode via `conversationModeService.verifyMode` before retrieval and generation)
+  - `app/api/chat/modes/route.ts` (Public `GET /api/chat/modes` returning localized array of active published conversation modes)
+  - `app/api/admin/ai/modes/route.ts` (Admin-authenticated `GET` endpoint returning all mode configurations)
+  - `app/api/admin/ai/modes/[id]/route.ts` (Admin-authenticated `PATCH` endpoint for updating mode settings and prompts)
+  - `src/modules/chat/presentation/chat-drawer.tsx` (Dynamic mode selector fetching published modes from `/api/chat/modes`, displaying localized titles and descriptions)
+  - Tests:
+    - `tests/unit/conversation-mode-service.test.ts` (10 tests)
+    - `tests/integration/conversation-modes-api.test.ts` (8 tests)
+    - `tests/integration/chat-modes-integration.test.ts` (3 tests)
+- Tests:
+  - Total: 540 unit/integration tests passing in Vitest across 88 test suites (88/88 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 45 static/dynamic routes compiled cleanly).
+- Next: F033 — Ask AI About This Project
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 31
+- DONE: 32
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 19
+- PENDING: 18
 
 The agent must update these totals when statuses change.
 

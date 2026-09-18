@@ -61,6 +61,7 @@ describe("Database Schema Foundation (F002)", () => {
     expect(schema.ingestionJobs).toBeDefined();
     expect(schema.sourceDocuments).toBeDefined();
     expect(schema.sourceChunks).toBeDefined();
+    expect(schema.conversationModes).toBeDefined();
   });
 
   it("exports all required evaluation and admin control plane tables", () => {
