@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F019 completed.
+Last updated: F020 completed.
 
 ## Current feature
-F019 — AI provider/model registry (DONE). Next is F020 — Secrets management.
+F020 — Secrets management (DONE). Next is F021 — Prompt registry & versioning.
 
 ## Repository state
-- Branch: `feat/f019-ai-provider-model-registry`
+- Branch: `feat/f020-secrets-management`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -28,20 +28,23 @@ F019 — AI provider/model registry (DONE). Next is F020 — Secrets management.
   - F017: Project catalog (DONE)
   - F018: Project Deep Dive (DONE)
   - F019: AI provider/model registry (DONE)
-- AI Provider & Model Registry Architecture implemented:
-  - Contracts & Domain (`src/ai/contracts/provider-registry.ts` and `baseline-registry.ts`): Typed capabilities (`generation`, `embedding`, `reranking`, `router`, `rewrite`, `evaluator`), provider protocols, display-safe metadata types (zero secret exposure to client), and Zod input validation schemas.
-  - Core Orchestration Service (`src/ai/orchestration/model-registry-service.ts`): Full database CRUD across `aiProviders`, `aiModels`, `aiModelAssignments`, and `aiRuntimePolicies`, in-memory TTL caching, audit event logging, dynamic capability assignment without redeployment, and capability health checks per `19_MODEL_HEALTH_AND_CAPABILITY_CHECKS.md`.
-  - Admin REST APIs (`app/api/admin/ai/`): Endpoints for providers, models, capability verification test, dynamic active assignments, and runtime policy, strictly guarded by `requireAdmin`.
-  - Admin Presentation (`src/modules/admin/presentation/ai-registry-manager.tsx` and `app/[locale]/admin/ai/page.tsx`): Full interactive control panel with capability assignments, provider/model management, live capability test verification, runtime policy controls, and full RTL/LTR Arabic/English localization.
-- 235 unit and integration tests passing in Vitest across 38 test suites.
-- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 235/235, Next.js build clean with all 25 static & dynamic routes compiled).
+  - F020: Secrets management (DONE)
+- Secrets Management Architecture implemented:
+  - Encryption (`src/lib/security/encryption.ts`): Authenticated AES-256-GCM symmetric encryption/decryption using 32-byte master key with random 12-byte IVs, 16-byte auth tags, and constant-time comparisons.
+  - SSRF Defense (`src/lib/security/ssrf-defense.ts`): Zero-trust outbound URL validator enforcing HTTPS, stripping IPv6 brackets, and strictly blocking loopback, link-local, RFC-1918 private subnets in production, cloud metadata endpoints, and sensitive ports.
+  - Redaction (`src/lib/security/redaction.ts`): Deep key-based and regex-based redaction for structured objects, error messages, and logs ensuring zero API key/token leakage.
+  - Core Secrets Service (`src/lib/security/secrets-service.ts`): Authoritative `SecretsService` handling encrypted storage in `secretReferences`, write-only masked previews e.g. `sk-...cdef`, display-safe metadata queries, secret removal, and audit logging.
+  - Display-safe integration (`src/ai/contracts/provider-registry.ts` & `src/ai/orchestration/model-registry-service.ts`): Enriched provider cards with write-only metadata (`hasApiKey`, `maskedKey`).
+  - Admin APIs (`app/api/admin/secrets/`): Endpoints for metadata listing, secret writing, and secret deletion strictly guarded by `requireAdmin`.
+- 260 unit and integration tests passing in Vitest across 40 test suites.
+- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 260/260, Next.js build clean with all 26 static & dynamic routes compiled).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 235/235 tests passed across 38 suites)
-- `pnpm build` (passed, all 25 static SSG and dynamic SSR routes compiled cleanly)
+- `pnpm test` (passed, 260/260 tests passed across 40 suites)
+- `pnpm build` (passed, all 26 static SSG and dynamic SSR routes compiled cleanly)
 
 ## Database migrations
 - `drizzle/0000_great_wendell_vaughn.sql` (committed)
@@ -50,11 +53,11 @@ F019 — AI provider/model registry (DONE). Next is F020 — Secrets management.
 None.
 
 ## Next action
-Begin **F020 — Secrets management**:
-1. Review `docs/security/` and `docs/ai/` specifications for API credential encryption and redaction.
-2. Implement encrypted vault / secret storage service utilizing `ENCRYPTION_MASTER_KEY` (AES-256-GCM).
-3. Connect AI provider API key references safely without exposing secrets in responses or logs.
-4. Add unit and integration tests for secrets management.
+Begin **F021 — Prompt registry & versioning**:
+1. Review `docs/admin/04_PROMPT_MANAGEMENT.md` and `docs/ai/` specifications for prompt registry and versioning.
+2. Implement prompt versions schema / domain models with variable schema validation, rollback capability, and localization support.
+3. Build admin REST APIs and management UI for prompts.
+4. Add unit and integration tests.
 
 ## Important reminders
 - Update this file before ending an agent session.

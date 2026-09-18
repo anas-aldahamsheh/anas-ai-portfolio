@@ -30,7 +30,7 @@ This file is the single progress source of truth.
 | F017 | Project catalog | Feature | **DONE** | Dynamic projects, filters/tags/order/publishing. |
 | F018 | Project Deep Dive | Feature | **DONE** | Block-based rich project detail pages. |
 | F019 | AI provider/model registry | AI/Admin | **DONE** | Admin manages generation/embedding/reranker providers/models/endpoints. |
-| F020 | Secrets management | Security/Admin | **PENDING** | Safe encrypted API credential management and redaction. |
+| F020 | Secrets management | Security/Admin | **DONE** | Safe encrypted API credential management and redaction. |
 | F021 | Prompt registry & versioning | AI/Admin | **PENDING** | Admin-editable prompt versions with rollback. |
 | F022 | RAG ingestion pipeline | AI | **PENDING** | Normalize, chunk, embed, metadata, index, update/delete sync. |
 | F023 | BGE-M3 embedding adapter | AI | **PENDING** | Default multilingual embedding integration behind provider interface. |
@@ -539,12 +539,36 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 25 routes compiled cleanly).
 - Next: F020 — Secrets management
 
+### F020: Secrets management
+- Feature: F020 — Secrets management
+- Status: **DONE**
+- Branch: `feat/f020-secrets-management`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/lib/security/encryption.ts` (Authenticated AES-256-GCM symmetric encryption/decryption using 32-byte master key with random 12-byte IVs, 16-byte auth tags, and constant-time comparisons)
+  - `src/lib/security/ssrf-defense.ts` (Zero-trust outbound URL validator enforcing HTTPS, stripping IPv6 brackets, and strictly blocking loopback, link-local, RFC-1918 private subnets in production, cloud metadata endpoints, and sensitive ports)
+  - `src/lib/security/redaction.ts` (Deep key-based and regex-based redaction for structured objects, error messages, and logs ensuring zero API key/token leakage)
+  - `src/lib/security/secrets-service.ts` (Authoritative `SecretsService` handling encrypted storage in `secretReferences`, write-only masked previews e.g. `sk-...cdef`, display-safe metadata queries, secret removal, and audit logging)
+  - `src/ai/contracts/provider-registry.ts` (Added `hasApiKey` and `maskedKey` display-safe metadata properties)
+  - `src/ai/orchestration/model-registry-service.ts` (Integrated `secretsService` with `DisplaySafeProvider` enrichment)
+  - `app/api/admin/secrets/route.ts` (Admin GET listing metadata & POST setting secret with strict `requireAdmin` guard and redaction)
+  - `app/api/admin/secrets/[key]/route.ts` (Admin GET metadata & DELETE secret endpoints guarded by `requireAdmin`)
+  - `tests/unit/secrets-service.test.ts` (17 unit tests covering AES-256-GCM encryption/decryption, tampered ciphertext, SSRF blocking, redaction, metadata generation, and secret CRUD)
+  - `tests/integration/secrets-endpoints.test.ts` (8 integration tests verifying admin authentication barriers, write-only security policy, metadata retrieval, masked previews, and secret deletion)
+- Tests:
+  - `tests/unit/secrets-service.test.ts` (17 tests passing)
+  - `tests/integration/secrets-endpoints.test.ts` (8 tests passing)
+  - Total: 260 unit/integration tests passing in Vitest across 40 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 26 routes compiled cleanly).
+- Next: F021 — Prompt registry & versioning
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 19
+- DONE: 20
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 31
+- PENDING: 30
 
 The agent must update these totals when statuses change.
+
