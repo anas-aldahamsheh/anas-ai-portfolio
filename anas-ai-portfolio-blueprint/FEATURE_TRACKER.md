@@ -45,7 +45,7 @@ This file is the single progress source of truth.
 | F032 | Conversation Mode | Feature | **DONE** | General / Recruiter / Technical modes. |
 | F033 | Ask AI About This Project | Feature | **DONE** | Hard project scope retrieval filter. |
 | F034 | Job Fit Analyzer | Feature | **DONE** | Maps pasted JD requirements to verified portfolio evidence. |
-| F035 | AI Lab | Feature | **PENDING** | Public interactive AI demonstrations configured from admin. |
+| F035 | AI Lab | Feature | **DONE** | Public interactive AI demonstrations configured from admin. |
 | F036 | RAG Debug View | Feature | **PENDING** | Safe retrieval telemetry without chain-of-thought. |
 | F037 | Evaluation Dashboard | Feature | **PENDING** | Public/admin metrics for retrieval/generation quality. |
 | F038 | AI evaluation runner | AI | **PENDING** | Dataset-driven regression evaluation. |
@@ -858,13 +858,39 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 48 static/dynamic routes compiled cleanly).
 - Next: F035 — AI Lab
 
+### F035: AI Lab (DONE)
+- Implemented production interactive AI Lab demonstration platform adhering strictly to `docs/features/14_AI_LAB.md`, `MASTER_BUILD_SPEC.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/lib/db/schema/ai.ts`: Added `aiLabDemos` table with slug, demo type, bilingual titles/descriptions, publication state, rate limit RPM, timeout, and sorting.
+  - `src/ai/contracts/ai-lab.ts`: Defined `AiLabDemoType`, `AiLabDemoConfig`, `LocalizedAiLabDemo`, `AiLabExecutionTelemetry`, `AiLabExecutionResult`, `AiLabExecutionInput`, `AiLabRunSchema`, `UpdateAiLabDemoSchema`, and `AiLabPort`.
+  - `src/ai/contracts/index.ts`: Re-exported AI Lab contracts.
+  - `src/ai/lab/baseline-demos.ts`: Configured 5 production baseline demos (`hybrid-search`, `reranking`, `retrieval-comparison`, `structured-extraction`, `citation-verification`).
+  - `src/ai/lab/ai-lab-service.ts`: Implemented `AiLabService` executing real underlying pipelines (dense vector search, sparse BM25, RRF fusion, cross-encoder reranking with delta metrics, schema-constrained structured extraction, and citation verification with hallucination defense). Includes TTL in-memory caching, 300ms bounded DB fallback, and admin audit logging.
+  - `src/ai/lab/index.ts`: Barrel export.
+  - `app/api/lab/demos/route.ts`: Public `GET /api/lab/demos` returning published demonstrations.
+  - `app/api/lab/run/route.ts`: Public `POST /api/lab/run` validating input against `AiLabRunSchema` and returning authentic execution results and latency telemetry.
+  - `app/api/admin/ai/lab/route.ts`: Admin `GET /api/admin/ai/lab` returning all demos with `requireAdmin` guard.
+  - `app/api/admin/ai/lab/[id]/route.ts`: Admin `PATCH /api/admin/ai/lab/[id]` for toggling publication, rate limits, timeouts, and sort order.
+  - `src/modules/localization/infrastructure/core-system-keys.ts`: Added `"lab"` to category union and added 25 bilingual keys.
+  - `src/modules/navigation/infrastructure/default-navigation.ts` & `src/modules/navigation/presentation/nav-icon.tsx`: Integrated AI Lab navigation item (`/lab`) and `FlaskConical` icon.
+  - `src/modules/ai-lab/presentation/ai-lab-view.tsx`: Interactive demo runner with tab switcher, parameter sliders/inputs, sample presets, execution engine, live telemetry bar (latency/tokens/authenticity), visual cards (rank shift indicators, side-by-side comparison columns, schema validation, groundedness pills), and raw JSON inspector.
+  - `src/modules/ai-lab/presentation/index.ts`: Barrel export.
+  - `app/[locale]/(public)/lab/page.tsx`: Public route with dynamic localized metadata and server-side demo pre-fetch.
+  - Tests:
+    - `tests/unit/ai-lab-service.test.ts` (10 tests verifying demo execution, baseline fallback, localization, rank deltas, structured extraction, citation verification, and admin config updates)
+    - `tests/integration/ai-lab-api.test.ts` (6 tests verifying public routes, input validation, execution, and admin authorization guards)
+    - `tests/integration/ai-lab-ui.test.tsx` (4 tests verifying component rendering, tab switching, parameter adjustments, execution flow, visual outputs, and raw JSON toggle)
+- Tests:
+  - Total: 575 unit/integration tests passing in Vitest across 95 test suites (95/95 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 53 static/dynamic routes compiled cleanly).
+- Next: F036 — RAG Debug View
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 34
+- DONE: 35
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 16
+- PENDING: 15
 
 The agent must update these totals when statuses change.
 
