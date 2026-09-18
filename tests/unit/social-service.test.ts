@@ -89,6 +89,26 @@ describe("Social Profile Domain & Service (F015)", () => {
       expect(profile.isVisible).toBe(true);
     });
 
+    it("returns baseline LinkedIn profile when database is unseeded (F016)", async () => {
+      service.invalidateCache();
+      const profile = await service.getProfile("linkedin", "en");
+
+      expect(profile).toBeDefined();
+      expect(profile.platform).toBe("linkedin");
+      expect(profile.handle).toBe("anas-ai-engineer");
+      expect(profile.url).toContain("linkedin.com");
+      expect(profile.isVisible).toBe(true);
+    });
+
+    it("returns both GitHub and LinkedIn baseline profiles in listProfiles (F016)", async () => {
+      service.invalidateCache();
+      const list = await service.listProfiles("en");
+
+      expect(list.length).toBeGreaterThanOrEqual(2);
+      expect(list.some((p) => p.platform === "github")).toBe(true);
+      expect(list.some((p) => p.platform === "linkedin")).toBe(true);
+    });
+
     it("caches profiles in memory across multiple calls", async () => {
       const list1 = await service.listProfiles("en");
       const list2 = await service.listProfiles("en");

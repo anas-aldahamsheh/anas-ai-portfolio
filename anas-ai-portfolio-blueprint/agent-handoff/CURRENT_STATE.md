@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F015 completed.
+Last updated: F016 completed.
 
 ## Current feature
-F015 — GitHub profile popover (DONE). Next is F016 — LinkedIn profile popover.
+F016 — LinkedIn profile popover (DONE). Next is F017 — Project catalog.
 
 ## Repository state
-- Branch: `feat/f015-github-profile-popover`
+- Branch: `feat/f016-linkedin-profile-popover`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -24,21 +24,21 @@ F015 — GitHub profile popover (DONE). Next is F016 — LinkedIn profile popove
   - F013: Global admin inline edit mode (DONE)
   - F014: CV viewer/download/versioning (DONE)
   - F015: GitHub profile popover (DONE)
-- GitHub Profile Popover & Social Architecture implemented:
-  - Dynamic localization keys registered for all social interactions and labels (Rule 18: zero hardcoded strings).
-  - Pure domain baseline isolation in `src/modules/social/domain/baseline.ts` prevents Node.js database drivers from leaking into client-side bundles.
-  - `SocialService` provides memory caching, database queries with locale translations, admin updates with audit logging, and domain baseline fallbacks.
-  - REST endpoint `/api/social/[platform]` supporting public GET and guarded PATCH (admin only).
-  - Accessible `GitHubPopover` with direct profile link, copy URL with feedback, Escape key listener, outside click detection, and RTL/LTR alignment.
-  - Seamlessly mounted in desktop and mobile `Navbar` with optional Admin Edit overlay support.
-- 170 unit and integration tests passing in Vitest across 32 test suites.
-- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 170/170, Next.js build clean).
+  - F016: LinkedIn profile popover (DONE)
+- LinkedIn Profile Popover & Social Architecture implemented:
+  - Dynamic localization keys registered for LinkedIn title and description in Arabic and English (Rule 18: zero hardcoded strings).
+  - Pure domain baseline isolation in `src/modules/social/domain/baseline.ts` (`BASELINE_LINKEDIN_PROFILE` and `BASELINE_SOCIAL_PROFILES`).
+  - `SocialService` resolves LinkedIn profile with cache invalidation, fallback handling, and clone arrays to prevent shared reference mutations.
+  - `LinkedInPopover` with accessible trigger, canonical URL with `dir="ltr"` protection, Clipboard API copy with feedback, `target="_blank"` safe external link, Escape/outside-click listeners, and `AdminEditProvider` / `EditableRegion` integration.
+  - Integrated in both `Navbar` header controls and `Footer` brand column for complete accessibility across the platform.
+- 178 unit and integration tests passing in Vitest across 33 test suites.
+- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 178/178, Next.js build clean).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 170/170 tests passed across 32 suites)
+- `pnpm test` (passed, 178/178 tests passed across 33 suites)
 - `pnpm build` (passed, all 16 static SSG and dynamic routes compiled cleanly)
 
 ## Database migrations
@@ -48,12 +48,12 @@ F015 — GitHub profile popover (DONE). Next is F016 — LinkedIn profile popove
 None.
 
 ## Next action
-Begin **F016 — LinkedIn profile popover**:
-1. Review `docs/features/07_GITHUB_LINKEDIN.md` and `docs/features/19_SOCIAL_POPOVER_UX.md`.
-2. Implement LinkedIn popover reusing `SocialService`, social domain models, and `SocialIcon`.
-3. Register LinkedIn localization keys in `core-system-keys.ts`.
-4. Ensure zero hardcoded social URLs (Rule 18), clean RTL/LTR layout, and admin inline edit support.
-5. Add unit and integration tests for LinkedIn social popover.
+Begin **F017 — Project catalog**:
+1. Review `docs/features/05_PROJECTS.md`, `docs/features/11_SEARCH_FILTER.md`, and `docs/features/17_FILTER_SORT_STATE.md`.
+2. Inspect projects schema (`projects`, `project_translations`, `project_media`, `project_tags`, `tags`, etc.).
+3. Implement dynamic project catalog with filtering (tags, domains, featured), sorting, search, pagination, and admin publishing status.
+4. Ensure zero hardcoded project content (Rule 18) and clean RTL/LTR layout.
+5. Add unit and integration tests for Project catalog.
 
 ## Important reminders
 - Update this file before ending an agent session.

@@ -26,7 +26,7 @@ This file is the single progress source of truth.
 | F013 | Global admin inline edit mode | Admin | **DONE** | Edit affordance adjacent to dynamic elements for admins only. |
 | F014 | CV viewer/download/versioning | Feature | **DONE** | Public CV page, viewer/download, admin upload/publish history. |
 | F015 | GitHub profile popover | Feature | **DONE** | Dynamic GitHub account card with copy/open actions. |
-| F016 | LinkedIn profile popover | Feature | **PENDING** | Dynamic LinkedIn account card with copy/open actions. |
+| F016 | LinkedIn profile popover | Feature | **DONE** | Dynamic LinkedIn account card with copy/open actions. |
 | F017 | Project catalog | Feature | **PENDING** | Dynamic projects, filters/tags/order/publishing. |
 | F018 | Project Deep Dive | Feature | **PENDING** | Block-based rich project detail pages. |
 | F019 | AI provider/model registry | AI/Admin | **PENDING** | Admin manages generation/embedding/reranker providers/models/endpoints. |
@@ -436,12 +436,36 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
 - Next: F016 — LinkedIn profile popover
 
+### F016: LinkedIn profile popover
+- Feature: F016 — LinkedIn profile popover
+- Status: **DONE**
+- Branch: `feat/f016-linkedin-profile-popover`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Added `social.linkedin.title` and `social.linkedin.description` dynamic keys with Arabic and English translations)
+  - `src/modules/social/domain/baseline.ts` (Added `BASELINE_LINKEDIN_PROFILE` and `BASELINE_SOCIAL_PROFILES` for database-independent client components)
+  - `src/modules/social/domain/types.ts` (Re-exported `BASELINE_LINKEDIN_PROFILE` and `BASELINE_SOCIAL_PROFILES`)
+  - `src/modules/social/infrastructure/social-service.ts` (Updated `getProfile` and `listProfiles` to resolve LinkedIn baseline profiles, fresh array cloning, and caching)
+  - `src/modules/social/presentation/linkedin-popover.tsx` (Dynamic accessible LinkedIn popover with copy URL button, direct profile link, Escape/click-outside dismiss, RTL/LTR layout, and admin inline edit integration)
+  - `src/modules/social/presentation/index.ts` (Exported `LinkedInPopover` and `LinkedInPopoverProps`)
+  - `src/modules/navigation/presentation/navbar.tsx` (Integrated `LinkedInPopover` in header controls on desktop and mobile)
+  - `src/modules/navigation/presentation/footer.tsx` (Integrated `LinkedInPopover` and `GitHubPopover` in footer brand section)
+  - `app/[locale]/(public)/layout.tsx` (Server-side concurrent fetch of LinkedIn profile passed to Navbar and Footer)
+  - `tests/unit/social-service.test.ts` (Added tests for LinkedIn baseline resolution and multi-profile listing)
+  - `tests/integration/linkedin-popover.test.tsx` (Integration tests for accessible trigger, popover open/close, copy-to-clipboard, secure external link, Escape key dismissal, and admin inline edit mode)
+- Tests:
+  - `tests/unit/social-service.test.ts` (9 tests passing)
+  - `tests/integration/linkedin-popover.test.tsx` (6 tests passing)
+  - Total: 178 unit/integration tests passing in Vitest across 33 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
+- Next: F017 — Project catalog
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 15
+- DONE: 16
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 35
+- PENDING: 34
 
 The agent must update these totals when statuses change.
