@@ -46,7 +46,7 @@ This file is the single progress source of truth.
 | F033 | Ask AI About This Project | Feature | **DONE** | Hard project scope retrieval filter. |
 | F034 | Job Fit Analyzer | Feature | **DONE** | Maps pasted JD requirements to verified portfolio evidence. |
 | F035 | AI Lab | Feature | **DONE** | Public interactive AI demonstrations configured from admin. |
-| F036 | RAG Debug View | Feature | **PENDING** | Safe retrieval telemetry without chain-of-thought. |
+| F036 | RAG Debug View | Feature | **DONE** | Safe retrieval telemetry without chain-of-thought. |
 | F037 | Evaluation Dashboard | Feature | **PENDING** | Public/admin metrics for retrieval/generation quality. |
 | F038 | AI evaluation runner | AI | **PENDING** | Dataset-driven regression evaluation. |
 | F039 | Admin content center | Admin | **PENDING** | Manage pages, sections, blocks, projects and publishing. |
@@ -882,15 +882,34 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 575 unit/integration tests passing in Vitest across 95 test suites (95/95 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 53 static/dynamic routes compiled cleanly).
-- Next: F036 — RAG Debug View
+### F036: RAG Debug View (DONE)
+- Implemented production safe RAG engineering telemetry and transparency view adhering strictly to `docs/features/15_RAG_DEBUG_VIEW.md`, `docs/ai/18_RAG_DEBUG_TELEMETRY_SCHEMA.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/ai/contracts/rag-debug.ts`: Core contracts (`RagDebugStageLatency`, `RagDebugSourceItem`, `RagDebugValidationState`, `RagDebugTelemetry`, `RagDebugRequestSchema`, `RagDebugRequest`).
+  - `src/ai/contracts/index.ts`: Re-exported RAG debug contracts.
+  - `src/ai/orchestration/chat-orchestrator.ts`: Calculated accurate stage latencies (`routingMs`, `rewriteMs`, `retrievalMs`, `rerankingMs`, `contextMs`, `generationMs`, `totalMs`), gathered sanitized source summaries (id, title, score, snippet), verified citation validation state (citationsCount, ungroundedCount), formatted route label, and preserved zero chain-of-thought and zero secret leakage.
+  - `src/modules/localization/infrastructure/core-system-keys.ts`: Added 20 localized keys (`chat.debug.*`) covering button, title, subtitle, stages, waterfall names, metrics, safety notice, and modal actions.
+  - `src/modules/chat/presentation/rag-debug-modal.tsx`: Interactive accessible modal (`role="dialog"`) with Escape key / backdrop dismiss, key metrics grid (latency ms, token count, route ID, grounding status), pipeline waterfall visualization, inspected sources list with scores & snippets, model/provider operational info, admin badge for admin traces, and safety guarantee notice.
+  - `src/modules/chat/presentation/chat-message.tsx`: Added RAG Trace button with latency indicator (`{totalMs}ms`) next to assistant messages that opens `RagDebugModal`.
+  - `src/modules/chat/presentation/chat-drawer.tsx`: Attached `telemetry` from SSE stream `event: done` and non-streaming JSON responses to assistant messages.
+  - `src/modules/chat/presentation/index.ts`: Exported `RagDebugModal` and its props.
+  - `app/api/admin/rag/debug/route.ts`: Secure admin route guarded by `requireAdmin` for running authenticated trace queries with `isAdmin: true`.
+  - `src/modules/admin/presentation/rag-pipeline-manager.tsx`: Added live "Live RAG Pipeline Trace (F036)" card supporting test query execution, mode selection, summary metrics, stage latencies breakdown, answer preview, and modal drill-down.
+  - Tests:
+    - `tests/unit/rag-debug.test.ts` (9 tests verifying schema validation, telemetry generation, positive stage latencies, admin view flag, zero secret/CoT leakage, and project scope telemetry)
+    - `tests/integration/rag-debug-api.test.ts` (5 tests verifying 401 unauthorized, 403 forbidden, 400 validation error, and 200 successful execution with admin view)
+    - `tests/integration/rag-debug-modal.test.tsx` (11 tests verifying dialog rendering, key metrics, waterfall stages, sources with snippets, admin badge, safety notice, close actions, Escape dismiss, and Arabic RTL layout)
+- Tests:
+  - Total: 600 unit/integration tests passing in Vitest across 98 test suites (98/98 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 54 static/dynamic routes compiled cleanly).
+- Next: F037 — Evaluation Dashboard
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 35
+- DONE: 36
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 15
+- PENDING: 14
 
 The agent must update these totals when statuses change.
 
