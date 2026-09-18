@@ -97,9 +97,9 @@ describe("PromptRegistryManager Component (F021)", () => {
     render(<PromptRegistryManager initialPrompts={mockPrompts} locale="en" />);
 
     expect(screen.getByText("AI Prompt Registry")).toBeInTheDocument();
-    expect(
-      screen.getAllByText("Portfolio AI Grounded Chat Policy").length,
-    ).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("Portfolio AI Grounded Chat Policy").length).toBeGreaterThanOrEqual(
+      1,
+    );
     expect(screen.getByText("Semantic Query Retrieval Router")).toBeInTheDocument();
   });
 

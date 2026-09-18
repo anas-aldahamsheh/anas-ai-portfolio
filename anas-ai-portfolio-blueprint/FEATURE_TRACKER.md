@@ -32,7 +32,7 @@ This file is the single progress source of truth.
 | F019 | AI provider/model registry | AI/Admin | **DONE** | Admin manages generation/embedding/reranker providers/models/endpoints. |
 | F020 | Secrets management | Security/Admin | **DONE** | Safe encrypted API credential management and redaction. |
 | F021 | Prompt registry & versioning | AI/Admin | **DONE** | Admin-editable prompt versions with rollback. |
-| F022 | RAG ingestion pipeline | AI | **PENDING** | Normalize, chunk, embed, metadata, index, update/delete sync. |
+| F022 | RAG ingestion pipeline | AI | **DONE** | Normalize, chunk, embed, metadata, index, update/delete sync. |
 | F023 | BGE-M3 embedding adapter | AI | **PENDING** | Default multilingual embedding integration behind provider interface. |
 | F024 | Hybrid retrieval | AI | **PENDING** | Dense + sparse retrieval, metadata filtering and fusion. |
 | F025 | Query Router | AI | **PENDING** | Route intent/scope to relevant retrieval policy. |
@@ -596,13 +596,49 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 30 routes compiled cleanly).
 - Next: F022 — RAG ingestion pipeline
 
+### F022: RAG Ingestion Pipeline (DONE)
+- Implemented complete, idempotent, and resilient RAG knowledge extraction, text normalization, semantic chunking, embedding generation, vector store syncing, and administrative pipeline control:
+  - `src/ai/contracts/ingestion.ts` (Core RAG contracts: `RawDocument`, `NormalizedDocument`, `DocumentChunk`, `ChunkMetadata`, `RagConfiguration`, `RagIndexStatus`, `EmbeddingPort`, `TriggerIngestSchema`, and `UpdateRagConfigSchema`)
+  - `src/ai/contracts/index.ts` (Exported ingestion contracts)
+  - `src/ai/ingestion/normalizers/content-normalizer.ts` (Full multilingual and Arabic-tailored text normalizer: Unicode NFKC, tatweel stripping, tashkeel/harakat removal, Alef/Teh Marbuta/Alef Maksura normalization, HTML tag stripping, and deterministic SHA-256 content hashing)
+  - `src/ai/ingestion/chunkers/semantic-chunker.ts` (Semantic, block-aware chunker with English and Arabic token estimation, sentence/paragraph boundary splitting without slicing Arabic words, heading carryover context, deterministic UUID point IDs, and rich metadata hierarchy)
+  - `src/lib/qdrant/vector-store.ts` (Resilient Qdrant REST vector store adapter with automatic in-memory fallback and exact cosine similarity calculations for seamless testing and offline resilience)
+  - `src/ai/embeddings/ports/embedding-port.ts` & `src/ai/embeddings/adapters/deterministic-embedding-adapter.ts` (1024-dimensional normalized embedding adapter)
+  - `src/ai/embeddings/index.ts` (Exported embedding services)
+  - `src/ai/ingestion/parsers/project-parser.ts` (Extracts published projects, problem/constraints/solution/architecture/tradeoffs/results, and tags)
+  - `src/ai/ingestion/parsers/cv-parser.ts` (Extracts published CV version overview, competencies, and professional summaries)
+  - `src/ai/ingestion/parsers/section-parser.ts` (Extracts dynamic page sections, headings, cards, and metrics)
+  - `src/ai/ingestion/parsers/index.ts` (Composite `parseAllSources`)
+  - `src/ai/ingestion/indexers/rag-indexer.ts` (Idempotent indexing with content-hash checks, relational database persistence, and vector store upsertion/tombstoning)
+  - `src/ai/ingestion/jobs/ingestion-service.ts` (Job lifecycle management, telemetry, config updates, status queries, and baseline offline fallbacks)
+  - `src/ai/ingestion/index.ts` (Ingestion module index)
+  - `app/api/admin/rag/status/route.ts` (GET status endpoint guarded by `requireAdmin`)
+  - `app/api/admin/rag/ingest/route.ts` (POST ingestion trigger endpoint guarded by `requireAdmin` and `TriggerIngestSchema`)
+  - `app/api/admin/rag/config/route.ts` (GET and PATCH RAG runtime configuration endpoint guarded by `requireAdmin` and `UpdateRagConfigSchema`)
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Added 12 bilingual Arabic RTL and English LTR keys for RAG admin pipeline)
+  - `src/modules/admin/presentation/rag-pipeline-manager.tsx` (Interactive admin UI with telemetry cards, sync trigger, force reindex toggle, and fine-tuning form)
+  - `src/modules/admin/presentation/index.ts` (Exported `RagPipelineManager`)
+  - `app/[locale]/admin/rag/page.tsx` (Admin route for RAG pipeline with SSR prefetching and dynamic localized metadata)
+  - `app/[locale]/admin/layout.tsx` (Added `RAG Pipeline` to admin navigation sidebar)
+  - `tests/unit/content-normalizer.test.ts` (14 unit tests covering Arabic diacritics stripping, tatweel removal, letter normalization, HTML stripping, whitespace cleanup, and SHA-256 hash determinism)
+  - `tests/unit/semantic-chunker.test.ts` (10 unit tests covering multilingual token estimation, deterministic point UUID generation, heading carryover, boundary preservation, and Arabic word preservation)
+  - `tests/unit/vector-store.test.ts` (6 unit tests covering collection creation, upsert, cosine search, filtering, and deletion)
+  - `tests/unit/parsers.test.ts` (3 unit tests covering CV, dynamic sections, and composite parsing)
+  - `tests/unit/ingestion-service.test.ts` (5 unit tests covering configuration retrieval, updates, status telemetry, and full ingestion execution)
+  - `tests/integration/rag-ingestion-endpoints.test.ts` (8 integration tests covering security barriers, status retrieval, ingest triggering, and config validation)
+  - `tests/integration/rag-pipeline-ui.test.tsx` (4 integration tests covering rendering telemetry, Arabic RTL layout, sync triggering, and configuration saving)
+- Tests:
+  - Total: 341 unit/integration tests passing in Vitest across 50 test suites (50/50 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 35 routes compiled cleanly).
+- Next: F023 — BGE-M3 embedding adapter
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 21
+- DONE: 22
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 29
+- PENDING: 28
 
 The agent must update these totals when statuses change.
 
