@@ -25,7 +25,7 @@ This file is the single progress source of truth.
 | F012 | Dynamic section builder | Content | **DONE** | Admin can create/delete/reorder sections using composable blocks. |
 | F013 | Global admin inline edit mode | Admin | **DONE** | Edit affordance adjacent to dynamic elements for admins only. |
 | F014 | CV viewer/download/versioning | Feature | **DONE** | Public CV page, viewer/download, admin upload/publish history. |
-| F015 | GitHub profile popover | Feature | **PENDING** | Dynamic GitHub account card with copy/open actions. |
+| F015 | GitHub profile popover | Feature | **DONE** | Dynamic GitHub account card with copy/open actions. |
 | F016 | LinkedIn profile popover | Feature | **PENDING** | Dynamic LinkedIn account card with copy/open actions. |
 | F017 | Project catalog | Feature | **PENDING** | Dynamic projects, filters/tags/order/publishing. |
 | F018 | Project Deep Dive | Feature | **PENDING** | Block-based rich project detail pages. |
@@ -411,14 +411,37 @@ This file is the single progress source of truth.
   - `tests/integration/cv-viewer.test.tsx` (3 tests verifying guest rendering, download links, zero admin UI for guests, admin controls when edit mode is active, and Arabic dynamic localization)
   - Total: 158 unit/integration tests passing in Vitest across 30 test suites
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
-- Next: F015 — GitHub profile popover
+### F015: GitHub profile popover
+- Feature: F015 — GitHub profile popover
+- Status: **DONE**
+- Branch: `feat/f015-github-profile-popover`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Added semantic keys for GitHub title, description, and social actions: copy URL, copied state, open profile, canonical URL)
+  - `src/modules/social/domain/types.ts` (`SocialPlatform`, `SocialProfile`, `socialProfileUpdateSchema`, re-export of `BASELINE_GITHUB_PROFILE`)
+  - `src/modules/social/domain/baseline.ts` (Pure domain baseline profile isolating client components from backend drivers)
+  - `src/modules/social/infrastructure/social-service.ts` (`SocialService` with in-memory TTL caching, database querying with locale translations, admin updates with audit logging, baseline fallback)
+  - `app/api/social/[platform]/route.ts` (Public `GET` and admin `PATCH` handler guarded with `requireAdmin` and audit trail)
+  - `src/modules/social/presentation/social-icon.tsx` (Accessible icon component supporting github, linkedin, twitter/x, email, and custom link)
+  - `src/modules/social/presentation/github-popover.tsx` (Dynamic accessible popover with copy URL button, direct profile link, keyboard navigation Escape/blur dismiss, RTL/LTR layout, and admin inline edit integration)
+  - `src/modules/social/presentation/index.ts` (Barrel export)
+  - `src/modules/navigation/presentation/navbar.tsx` (Integrated `GitHubPopover` alongside theme toggle and language selector)
+  - `app/[locale]/(public)/layout.tsx` (Server-side dynamic fetch of GitHub social profile from `socialService`)
+  - `tests/unit/social-service.test.ts`
+  - `tests/integration/github-popover.test.tsx`
+- Tests:
+  - `tests/unit/social-service.test.ts` (7 tests verifying baseline fallback, database profile retrieval with locale fallback, caching, admin update validation, and audit logging)
+  - `tests/integration/github-popover.test.tsx` (5 tests verifying accessible trigger, popover open/close, copy-to-clipboard interaction, Escape key dismissal, and admin inline edit handle display)
+  - Total: 170 unit/integration tests passing in Vitest across 32 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
+- Next: F016 — LinkedIn profile popover
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 14
+- DONE: 15
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 36
+- PENDING: 35
 
 The agent must update these totals when statuses change.

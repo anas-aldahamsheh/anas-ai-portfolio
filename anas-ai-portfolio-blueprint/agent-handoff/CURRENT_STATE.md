@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F014 completed.
+Last updated: F015 completed.
 
 ## Current feature
-F014 — CV viewer/download/versioning (DONE). Next is F015 — GitHub profile popover.
+F015 — GitHub profile popover (DONE). Next is F016 — LinkedIn profile popover.
 
 ## Repository state
-- Branch: `feat/f014-cv-viewer-download-versioning`
+- Branch: `feat/f015-github-profile-popover`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -23,24 +23,23 @@ F014 — CV viewer/download/versioning (DONE). Next is F015 — GitHub profile p
   - F012: Dynamic section builder (DONE)
   - F013: Global admin inline edit mode (DONE)
   - F014: CV viewer/download/versioning (DONE)
-- CV Viewer, Download & Versioning System architecture implemented:
-  - Dynamic localization keys registered for all CV labels, badges, and admin controls (Rule 18: zero hardcoded strings).
-  - Strict PDF binary validation via magic bytes (`%PDF-`) and 10MB limit enforcement.
-  - `CvStorageService` provides memory caching and filesystem persistence for fast binary delivery.
-  - `CvService` manages versioning, publishing, rollback, audit logging into `audit_events`, and in-memory TTL caching.
-  - Public streaming route `GET /api/cv/download` with cache headers, inline/attachment disposition.
-  - Admin management route `app/api/admin/cv/route.ts` guarded by `requireAdmin`.
-  - Responsive `CvViewer` with high-fidelity desktop `<object>` embed and mobile `<CvFallbackCard>` preventing miniature iframe trapping.
-  - Integrated with `EditableRegion` and `CvAdminControls` when admin inline edit mode is active.
-- 158 unit and integration tests passing in Vitest across 30 test suites.
-- Full verification passed (Prettier, ESLint, TypeScript strict, Vitest, Next.js build).
+  - F015: GitHub profile popover (DONE)
+- GitHub Profile Popover & Social Architecture implemented:
+  - Dynamic localization keys registered for all social interactions and labels (Rule 18: zero hardcoded strings).
+  - Pure domain baseline isolation in `src/modules/social/domain/baseline.ts` prevents Node.js database drivers from leaking into client-side bundles.
+  - `SocialService` provides memory caching, database queries with locale translations, admin updates with audit logging, and domain baseline fallbacks.
+  - REST endpoint `/api/social/[platform]` supporting public GET and guarded PATCH (admin only).
+  - Accessible `GitHubPopover` with direct profile link, copy URL with feedback, Escape key listener, outside click detection, and RTL/LTR alignment.
+  - Seamlessly mounted in desktop and mobile `Navbar` with optional Admin Edit overlay support.
+- 170 unit and integration tests passing in Vitest across 32 test suites.
+- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 170/170, Next.js build clean).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 158/158 tests passed)
-- `pnpm build` (passed, all static SSG and dynamic routes compiled cleanly)
+- `pnpm test` (passed, 170/170 tests passed across 32 suites)
+- `pnpm build` (passed, all 16 static SSG and dynamic routes compiled cleanly)
 
 ## Database migrations
 - `drizzle/0000_great_wendell_vaughn.sql` (committed)
@@ -49,11 +48,12 @@ F014 — CV viewer/download/versioning (DONE). Next is F015 — GitHub profile p
 None.
 
 ## Next action
-Begin **F015 — GitHub profile popover**:
+Begin **F016 — LinkedIn profile popover**:
 1. Review `docs/features/07_GITHUB_LINKEDIN.md` and `docs/features/19_SOCIAL_POPOVER_UX.md`.
-2. Implement dynamic GitHub account card/popover with copy/open actions, live metadata, and admin management.
-3. Ensure zero hardcoded social URLs (Rule 18) and clean RTL/LTR layout.
-4. Add unit and integration tests for GitHub social popover.
+2. Implement LinkedIn popover reusing `SocialService`, social domain models, and `SocialIcon`.
+3. Register LinkedIn localization keys in `core-system-keys.ts`.
+4. Ensure zero hardcoded social URLs (Rule 18), clean RTL/LTR layout, and admin inline edit support.
+5. Add unit and integration tests for LinkedIn social popover.
 
 ## Important reminders
 - Update this file before ending an agent session.
