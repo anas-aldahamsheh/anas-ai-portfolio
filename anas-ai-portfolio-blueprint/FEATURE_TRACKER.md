@@ -1014,15 +1014,35 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 698 unit/integration tests passing in Vitest across 113 test suites (113/113 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 71 static/dynamic routes compiled cleanly in 16.0s).
-- Next: F042 — Feature flags
+### F042: Feature Flags (DONE)
+- Implemented production Feature Flag management system with canary rollout, evaluation endpoint, and admin controls adhering strictly to `docs/admin/04_FEATURE_FLAGS.md`, `docs/admin/01_ADMIN_CONTROL_PLANE.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/modules/admin/domain/feature-flags.ts`: Domain models (`FeatureFlag`, `FeatureFlagCategory`, `FeatureFlagEvaluationResult`, `UpdateFeatureFlagInputSchema`, `EvaluateFlagsQuerySchema`).
+  - `src/modules/admin/domain/index.ts`: Re-exported feature flag contracts.
+  - `src/modules/admin/infrastructure/baseline-feature-flags.ts`: Authentic production feature flags covering AI query rewriting, BGE reranker, hybrid search, streaming, lab demos, voice chat, and admin audit logging.
+  - `src/modules/admin/infrastructure/feature-flag-service.ts`: Implemented `FeatureFlagService` with TTL in-memory caching, offline override overlay, deterministic hash-based canary rollout evaluation (`computeSimpleHash`), DB upsert to `featureFlags` table, and audit logging to `auditEvents`.
+  - `app/api/admin/feature-flags/route.ts`: Admin `GET /api/admin/feature-flags` returning all flags. Guarded by `requireAdmin`.
+  - `app/api/admin/feature-flags/[key]/route.ts`: Admin `PATCH /api/admin/feature-flags/[key]` updating state or rollout percentage. Guarded by `requireAdmin`.
+  - `app/api/feature-flags/eval/route.ts`: Public evaluation endpoint `GET /api/feature-flags/eval?keys=key1,key2` supporting client-side feature gating.
+  - `src/modules/admin/presentation/feature-flag-manager.tsx`: Interactive Feature Flag Manager with category tabs, search input, status badges, canary rollout slider (1-100%), one-click toggle button, and Arabic RTL layout.
+  - `src/modules/admin/presentation/index.ts`: Re-exported `FeatureFlagManager`.
+  - `app/[locale]/admin/feature-flags/page.tsx`: Production route with localized metadata, server-side prefetch with timeout fallbacks, `export const dynamic = "force-dynamic"`, and renders `FeatureFlagManager`.
+  - `app/[locale]/admin/layout.tsx`: Navigation sidebar link for Feature Flags (`/admin/feature-flags`).
+  - Tests:
+    - `tests/unit/feature-flag-service.test.ts` (7 tests verifying baseline fallback, key retrieval, enabled/disabled state, deterministic canary evaluation, and update cache invalidation)
+    - `tests/integration/feature-flag-api.test.ts` (8 tests verifying 401 unauthenticated, 403 non-admin, 200 admin listing, 400 validation error, 200 patch update, and public evaluation endpoint)
+    - `tests/integration/feature-flag-ui.test.tsx` (5 tests verifying F042 badge, flags listing, category filter, toggle action, and Arabic RTL layout)
+- Tests:
+  - Total: 718 unit/integration tests passing in Vitest across 116 test suites (116/116 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 75 static/dynamic routes compiled cleanly).
+- Next: F043 — Caching & Invalidation
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 41
+- DONE: 42
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 9
+- PENDING: 8
 
 The agent must update these totals when statuses change.
 
