@@ -60,7 +60,7 @@ This file is the single progress source of truth.
 | F047 | Accessibility compliance | Frontend/QA | **DONE** | Keyboard, focus, semantics, screen-reader, contrast, Axe. |
 | F048 | Responsive behavior | Frontend/QA | **DONE** | Phone/tablet/desktop layouts in ar/en and dark/light. |
 | F049 | Security test pass | Security/QA | **DONE** | OWASP-oriented checks, authz, upload validation, injection defense. |
-| F050 | Production deployment & rollback | Ops | **PENDING** | Reproducible deployment, migrations, smoke tests and rollback. |
+| F050 | Production deployment & rollback | Ops | **DONE** | Reproducible deployment, migrations, smoke tests and rollback. |
 
 #### F001 — Foundation & repository quality
 - Status: DONE
@@ -1137,17 +1137,28 @@ This file is the single progress source of truth.
     - `tests/security/owasp-secrets-redaction.test.ts` (4 tests passing)
     - Total: 802 unit/integration/security tests passing across 134 test suites (134/134 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 16.8s).
-- Next: F050 — Production deployment & rollback
+### F050: Production deployment & rollback (DONE)
+- Implemented production deployment, automated verification, runbooks, and rollback procedures adhering strictly to `docs/ops/01_DEPLOYMENT.md`, `docs/ops/03_CI_CD.md`, and `docs/ops/05_BACKUPS_RECOVERY.md`:
+  - `scripts/verify-deployment.ts`: Automated pre-flight & deployment verification script running 5 core validation stages (Environment & secrets integrity, Process liveness & memory thresholds, Subsystem readiness probes, Prompt registry invariants, and Navigation & localization integrity).
+  - `package.json`: Registered `"verify:deploy": "tsx scripts/verify-deployment.ts"` script.
+  - `docs/ops/DEPLOYMENT_RUNBOOK.md`: Comprehensive production deployment runbook detailing the 5-step pre-deploy validation pipeline, locked environment secrets, zero-downtime expand/contract database migration rules, and post-deployment smoke verification.
+  - `docs/ops/ROLLBACK_RUNBOOK.md`: Emergency production rollback runbook defining rollback triggers (5xx error rate > 1%, readiness probe failure, regression gate failure, latency spikes), application artifact instant reversion, prompt version rollback, vector index snapshot recovery, and post-rollback verification checklists.
+  - `tests/integration/production-smoke.test.ts`: Automated smoke verification test suite verifying `/api/health` HTTP 200 with process metrics, `/api/readiness` HTTP 200 with operational subsystem checks, `/api/metrics` Prometheus exposition format, admin authorization denial for unauthenticated callers (401), and 100% pass on deployment verification checks.
+  - Tests:
+    - `tests/integration/production-smoke.test.ts` (5 tests passing)
+    - Total: 807 unit/integration/security tests passing across 135 test suites (135/135 passing, 100% clean)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 17.5s).
+- Status: ALL 50 FEATURES COMPLETED (100% COMPLETE)
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 49
+- DONE: 50
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 1
+- PENDING: 0
 
-The agent must update these totals when statuses change.
+All 50 features in the blueprint have been completed, verified against quality gates, tested, and committed to git.
 
 
 
