@@ -55,7 +55,7 @@ This file is the single progress source of truth.
 | F042 | Feature flags | Ops/Admin | **DONE** | Controlled rollout of risky features. |
 | F043 | Caching & invalidation | Performance | **DONE** | Tag/key-based cache strategy with correct invalidation. |
 | F044 | Rate limiting & abuse protection | Security | **DONE** | Chat/auth/job-fit/admin rate limits. |
-| F045 | Observability | Ops | **PENDING** | Structured logs, request IDs, metrics, tracing, errors. |
+| F045 | Observability | Ops | **DONE** | Structured logs, request IDs, metrics, tracing, errors. |
 | F046 | Health/readiness endpoints | Ops | **PENDING** | Operational health checks without leaking secrets. |
 | F047 | Accessibility compliance | Frontend/QA | **PENDING** | Keyboard, focus, semantics, screen-reader, contrast, Axe. |
 | F048 | Responsive behavior | Frontend/QA | **PENDING** | Phone/tablet/desktop layouts in ar/en and dark/light. |
@@ -1064,15 +1064,29 @@ This file is the single progress source of truth.
 - Tests:
   - Total: 749 unit/integration tests passing in Vitest across 121 test suites (121/121 passing)
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 80 static/dynamic routes compiled cleanly in 19.3s).
-- Next: F045 — Observability
+### F045: Observability (DONE)
+- Implemented production observability platform with correlation/request ID propagation, latency percentiles, OpenTelemetry-compatible tracing, structured JSON logging, and Prometheus exposition adhering strictly to `docs/admin/01_ADMIN_CONTROL_PLANE.md`, `docs/features/01_GUEST_ACCESS.md`, and `docs/frontend/06_RESPONSIVE_ACCESSIBILITY.md`:
+  - `src/lib/observability/request-context.ts`: `RequestContext` with Node.js `AsyncLocalStorage`, request ID extraction (`x-request-id`, `request-id`, or auto-generated UUID), trace ID propagation (`traceparent`, `x-trace-id`), and response header injection (`X-Request-Id`, `X-Trace-Id`, `X-Response-Time`).
+  - `src/lib/observability/metrics.ts`: `MetricsCollector` calculating request counts by status group (2xx, 4xx, 5xx), route breakdown, latency percentiles (min, max, avg, P50, P90, P99), AI stage execution durations, process memory (RSS, heap total, heap used), uptime, and Prometheus exposition format serialization (`toPrometheusFormat`).
+  - `src/lib/observability/tracer.ts`: `Tracer` class with `traceSpan` API measuring execution duration, recording attributes and error states, and preserving bounded ring buffer of recent spans for live admin inspection.
+  - `src/lib/observability/index.ts`: Barrel export.
+  - `app/api/admin/observability/route.ts`: Admin telemetry endpoint `GET /api/admin/observability` returning real-time metrics snapshot and recent span traces. Guarded by `requireAdmin`.
+  - `app/api/metrics/route.ts`: Public standard Prometheus metrics scrape endpoint `GET /api/metrics` with `text/plain; version=0.0.4` exposition.
+  - Tests:
+    - `tests/unit/observability.test.ts` (7 tests verifying header propagation, random ID fallback, response header attachment, metrics percentile calculation, Prometheus serialization, span tracing, and error recording)
+    - `tests/integration/observability-api.test.ts` (4 tests verifying 401 unauthenticated, 403 non-admin, 200 admin observability telemetry, and 200 Prometheus text format output)
+- Tests:
+  - Total: 760 unit/integration tests passing in Vitest across 123 test suites (123/123 passing)
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js production build clean (all 82 static/dynamic routes compiled cleanly in 19.9s).
+- Next: F046 — Health/readiness endpoints
 
 ## Overall progress
 
 - Total features: 50
-- DONE: 44
+- DONE: 45
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 6
+- PENDING: 5
 
 The agent must update these totals when statuses change.
 
