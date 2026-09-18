@@ -1,12 +1,12 @@
 # Current State
 
-Last updated: F016 completed.
+Last updated: F017 completed.
 
 ## Current feature
-F016 — LinkedIn profile popover (DONE). Next is F017 — Project catalog.
+F017 — Project catalog (DONE). Next is F018 — Project Deep Dive.
 
 ## Repository state
-- Branch: `feat/f016-linkedin-profile-popover`
+- Branch: `feat/f017-project-catalog`
 - Last commit: Pending commit
 - Completed features:
   - F001: Foundation & repository quality (DONE)
@@ -25,21 +25,23 @@ F016 — LinkedIn profile popover (DONE). Next is F017 — Project catalog.
   - F014: CV viewer/download/versioning (DONE)
   - F015: GitHub profile popover (DONE)
   - F016: LinkedIn profile popover (DONE)
-- LinkedIn Profile Popover & Social Architecture implemented:
-  - Dynamic localization keys registered for LinkedIn title and description in Arabic and English (Rule 18: zero hardcoded strings).
-  - Pure domain baseline isolation in `src/modules/social/domain/baseline.ts` (`BASELINE_LINKEDIN_PROFILE` and `BASELINE_SOCIAL_PROFILES`).
-  - `SocialService` resolves LinkedIn profile with cache invalidation, fallback handling, and clone arrays to prevent shared reference mutations.
-  - `LinkedInPopover` with accessible trigger, canonical URL with `dir="ltr"` protection, Clipboard API copy with feedback, `target="_blank"` safe external link, Escape/outside-click listeners, and `AdminEditProvider` / `EditableRegion` integration.
-  - Integrated in both `Navbar` header controls and `Footer` brand column for complete accessibility across the platform.
-- 178 unit and integration tests passing in Vitest across 33 test suites.
-- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 178/178, Next.js build clean).
+  - F017: Project catalog (DONE)
+- Project Catalog & Filtering Architecture implemented:
+  - Dynamic localization keys registered for all catalog titles, filter labels, sorting options, badges, and empty states (Rule 18: zero hardcoded strings).
+  - Pure domain models (`Project`, `ProjectCategory`, `ProjectTag`, `ProjectFilterParams`) and baseline fallback dataset in Arabic & English.
+  - `ProjectService` with TTL in-memory caching, database querying across project tables, category/tag relations, multi-criteria filtering, multi-field sorting, and audit-logged admin status updates.
+  - Public `/api/projects` endpoint with cache headers and admin `/api/admin/projects/[id]/status` guarded by `requireAdmin`.
+  - Presentation components: `ProjectCard` with graceful media fallback, `ProjectFilters` utilizing custom Radix UI Selects, and `ProjectCatalog` with staggered grid animation, live count, and empty state reset.
+  - Public server-rendered route `app/[locale]/(public)/projects/page.tsx` with dynamic localized metadata.
+- 199 unit and integration tests passing in Vitest across 35 test suites.
+- Full verification passed (Prettier 100%, ESLint 0 errors/warnings, TypeScript strict 0 errors, Vitest 199/199, Next.js build clean).
 
 ## Last successful commands
 - `pnpm format:check` (passed, 100% clean)
 - `pnpm lint` (passed, 0 errors, 0 warnings)
 - `pnpm typecheck` (passed, strict mode, 0 errors)
-- `pnpm test` (passed, 178/178 tests passed across 33 suites)
-- `pnpm build` (passed, all 16 static SSG and dynamic routes compiled cleanly)
+- `pnpm test` (passed, 199/199 tests passed across 35 suites)
+- `pnpm build` (passed, all 19 static SSG and dynamic routes compiled cleanly)
 
 ## Database migrations
 - `drizzle/0000_great_wendell_vaughn.sql` (committed)
@@ -48,12 +50,12 @@ F016 — LinkedIn profile popover (DONE). Next is F017 — Project catalog.
 None.
 
 ## Next action
-Begin **F017 — Project catalog**:
-1. Review `docs/features/05_PROJECTS.md`, `docs/features/11_SEARCH_FILTER.md`, and `docs/features/17_FILTER_SORT_STATE.md`.
-2. Inspect projects schema (`projects`, `project_translations`, `project_media`, `project_tags`, `tags`, etc.).
-3. Implement dynamic project catalog with filtering (tags, domains, featured), sorting, search, pagination, and admin publishing status.
-4. Ensure zero hardcoded project content (Rule 18) and clean RTL/LTR layout.
-5. Add unit and integration tests for Project catalog.
+Begin **F018 — Project Deep Dive**:
+1. Review `docs/features/09_PROJECT_DEEP_DIVE.md` and `docs/features/12_ASK_AI_PROJECT.md`.
+2. Implement content-driven dynamic project detail page `app/[locale]/(public)/projects/[slug]/page.tsx`.
+3. Support rich composable detail blocks (overview, problem, constraints, solution, architecture, challenges, results, evidence, media).
+4. Integrate with `EditableRegion` for admin inline edits.
+5. Add unit and integration tests for Project Deep Dive.
 
 ## Important reminders
 - Update this file before ending an agent session.

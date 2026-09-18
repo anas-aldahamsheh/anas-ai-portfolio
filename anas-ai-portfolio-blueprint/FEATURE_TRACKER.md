@@ -27,7 +27,7 @@ This file is the single progress source of truth.
 | F014 | CV viewer/download/versioning | Feature | **DONE** | Public CV page, viewer/download, admin upload/publish history. |
 | F015 | GitHub profile popover | Feature | **DONE** | Dynamic GitHub account card with copy/open actions. |
 | F016 | LinkedIn profile popover | Feature | **DONE** | Dynamic LinkedIn account card with copy/open actions. |
-| F017 | Project catalog | Feature | **PENDING** | Dynamic projects, filters/tags/order/publishing. |
+| F017 | Project catalog | Feature | **DONE** | Dynamic projects, filters/tags/order/publishing. |
 | F018 | Project Deep Dive | Feature | **PENDING** | Block-based rich project detail pages. |
 | F019 | AI provider/model registry | AI/Admin | **PENDING** | Admin manages generation/embedding/reranker providers/models/endpoints. |
 | F020 | Secrets management | Security/Admin | **PENDING** | Safe encrypted API credential management and redaction. |
@@ -460,12 +460,39 @@ This file is the single progress source of truth.
 - Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
 - Next: F017 — Project catalog
 
+### F017: Project catalog
+- Feature: F017 — Project catalog
+- Status: **DONE**
+- Branch: `feat/f017-project-catalog`
+- Commit: Pending commit
+- Files changed/created:
+  - `src/modules/localization/infrastructure/core-system-keys.ts` (Registered 20 dynamic localization keys for project catalog, filters, sort options, count, badges, and empty states in Arabic and English)
+  - `src/modules/projects/domain/types.ts` (Domain models for `Project`, `ProjectCategory`, `ProjectTag`, `ProjectFilterParams`, `ProjectListResult`, and Zod update validation)
+  - `src/modules/projects/domain/baseline.ts` (Pure domain baseline fallbacks with rich multi-domain projects in Arabic & English, categories, and tags)
+  - `src/modules/projects/infrastructure/project-service.ts` (`ProjectService` with in-memory TTL caching, database querying across project tables and translations, multi-criteria filtering, multi-field sorting, and audit-logged admin status updates)
+  - `app/api/projects/route.ts` (Public GET endpoint supporting locale, category, tag, search query, featured flag, and sort parameters with caching headers)
+  - `app/api/admin/projects/[id]/status/route.ts` (Admin PATCH endpoint guarded by `requireAdmin` for publishing status workflows)
+  - `src/modules/admin/domain/inline-edit.ts` (Added `project` to `editableEntityTypeSchema`)
+  - `src/modules/projects/presentation/project-card.tsx` (Glassmorphic responsive card with graceful missing media fallback, badges, tags, links, and `EditableRegion` integration)
+  - `src/modules/projects/presentation/project-filters.tsx` (Interactive filter bar using design system custom Select primitives, search input with clear action, and featured checkbox)
+  - `src/modules/projects/presentation/project-catalog.tsx` (Client component combining search/filter state, dynamic result count, staggered animated grid, and empty state with reset action)
+  - `src/modules/projects/presentation/index.ts` (Barrel export)
+  - `app/[locale]/(public)/projects/page.tsx` (Server-rendered page with dynamic localized metadata and SSR project catalog)
+  - `tests/unit/project-service.test.ts` (14 unit tests covering baseline fallbacks, search, category, tag, featured filters, sorting, slug lookup, caching, and admin status updates)
+  - `tests/integration/project-catalog.test.tsx` (7 integration tests covering catalog rendering, reactive search, featured toggle, empty state reset, accessibility, RTL Arabic support, and admin inline edit)
+- Tests:
+  - `tests/unit/project-service.test.ts` (14 tests passing)
+  - `tests/integration/project-catalog.test.tsx` (7 tests passing)
+  - Total: 199 unit/integration tests passing in Vitest across 35 test suites
+- Quality gates: TypeScript strict 0 errors, ESLint 0 errors/warnings, Prettier 100%, Next.js build clean.
+- Next: F018 — Project Deep Dive
+
 ## Overall progress
 
 - Total features: 50
-- DONE: 16
+- DONE: 17
 - IN_PROGRESS: 0
 - BLOCKED: 0
-- PENDING: 34
+- PENDING: 33
 
 The agent must update these totals when statuses change.
