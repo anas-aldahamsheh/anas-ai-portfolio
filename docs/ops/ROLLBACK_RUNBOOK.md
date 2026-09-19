@@ -18,6 +18,7 @@ Initiate immediate rollback if any of the following criteria are met within 15 m
 ## 2. Emergency Rollback Execution Steps
 
 ### Step 1: Instant Application Artifact Reversion
+
 Revert traffic to the previously verified release artifact immediately via hosting control plane:
 
 - **Vercel / Cloudflare Pages:**
@@ -28,7 +29,9 @@ Revert traffic to the previously verified release artifact immediately via hosti
   ```
 
 ### Step 2: Prompt Registry Rollback
+
 If the regression is related to AI conversational hallucinations or prompt drift:
+
 1. Navigate to `Admin -> Prompts -> History`.
 2. Locate the impacted prompt role (e.g. `chat_system`).
 3. Select the prior stable version (e.g. `v1`).
@@ -44,7 +47,9 @@ If the regression is related to AI conversational hallucinations or prompt drift
    ```
 
 ### Step 3: Vector Index & Qdrant Snapshot Recovery
+
 If the vector collection was corrupted by a bad ingestion job:
+
 1. Re-run baseline ingestion or restore snapshot:
    ```bash
    pnpm reindex --clean
@@ -56,7 +61,9 @@ If the vector collection was corrupted by a bad ingestion job:
    ```
 
 ### Step 4: Database Schema Compatibility Verification
+
 Because deployments adhere strictly to the **Expand / Contract** zero-downtime rule, the database schema remains 100% backward-compatible with the prior application version.
+
 - Do **NOT** attempt down-migrations during an active incident unless explicitly required.
 - If data corruption occurred, restore PostgreSQL from the latest Point-in-Time Recovery (PITR) backup snapshot.
 
@@ -65,6 +72,7 @@ Because deployments adhere strictly to the **Expand / Contract** zero-downtime r
 ## 3. Post-Rollback Verification Checklist
 
 Verify system recovery after rollback:
+
 - [ ] `GET /api/health` returns HTTP 200 `healthy`
 - [ ] `GET /api/readiness` returns HTTP 200 `ready` or `degraded`
 - [ ] 5xx error rate drops back to baseline (< 0.05%)
